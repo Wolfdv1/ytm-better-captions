@@ -63,7 +63,7 @@ function applyPreset1() {
     document.getElementById("shadow-type").value = "drop-shadow";
     document.getElementById("shadow-colour").value = "#222222";
     document.getElementById("shadow-alpha").value = "100";
-    document.getElementById("font-family").value = "Monotype Corsiva, URW Chancery L, Apple Chancery, Dancing Script, cursive";
+    document.getElementById("font-family").value = "Dancing Script, cursive";
     updatePreview();
 }
 
@@ -75,7 +75,7 @@ function applyPreset2() {
     document.getElementById("shadow-type").value = "drop-shadow";
     document.getElementById("shadow-colour").value = "#000000";
     document.getElementById("shadow-alpha").value = "94";
-    document.getElementById("font-family").value = "Monotype Corsiva";
+    document.getElementById("font-family").value = "Georgia, serif";
     updatePreview();
 }
 

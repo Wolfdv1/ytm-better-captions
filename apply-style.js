@@ -5,8 +5,6 @@ function applyCSS(options) {
 
     const CSS = `
         .ytp-caption-segment {
-            display: inline-block !important;
-            white-space: pre-wrap !important;
             background: ${background} !important;
             color: ${colour} !important;
             fill: ${colour} !important;

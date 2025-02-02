@@ -1,29 +1,24 @@
-function applyCSS(options) {
-    const background = hexToRgba(options.background, options.backgroundAlpha / 100);
-    const colour = hexToRgba(options.colour, options.colourAlpha / 100);
-    const shadow = options.shadowType === "none" ? "none" : `${hexToRgba(options.shadowColour, options.shadowAlpha / 100)} 1px 1px 2px`;
-
-    const CSS = `
-        .ytp-caption-segment {
-            background: ${background} !important;
-            color: ${colour} !important;
-            fill: ${colour} !important;
-            text-shadow: ${shadow} !important;
-            font-family: ${options.fontFamily} !important;
-        }
-    `;
+function applyCSS(cssString) {
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
-    styleSheet.innerText = CSS;
+    styleSheet.innerText = cssString;
     document.head.appendChild(styleSheet);
-    applyCenterFix(); // TODO make this optional
+    browser.runtime.sendMessage({ message: "centerCaptions" }).then((centered) => {
+        if (centered) {
+            applyCenterFix();
+        }
+    });
 }
 
 function applyCenterFix() {
-    const centerFix = `#caption-window-1 {
-        text-align: center !important;
-        left: 18% !important;
-      }`;
+    const centerFix = `.caption-window {
+  left: 50vw !important;
+  position: absolute !important;
+  transform: translateX(-30vw) !important;
+  text-align: left !important;
+  margin-left: 0px !important;
+  width: 60vw !important;
+}`;
     var styleSheetCenter = document.createElement("style");
     styleSheetCenter.type = "text/css";
     styleSheetCenter.innerText = centerFix;
@@ -39,7 +34,7 @@ function hexToRgba(hex, alpha) {
 
 browser.runtime.onMessage.addListener((request) => {
     if (request.message === "optionsChanged") {
-        applyCSS(request.options);
+        applyCSS(request.cssString);
     }
 });
 

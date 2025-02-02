@@ -41,6 +41,7 @@
             color: white;
             border: none;
             cursor: pointer;
+            width: 100%;
         }
         button:hover {
             background-color: #45a049;
@@ -53,7 +54,7 @@
             border: none;
             cursor: pointer;
             display: block;
-            width: 100%;
+            width: 90%;
             text-align: center;
         }
         .preset-button:hover {
@@ -121,7 +122,10 @@
     <form id="settings-form">
         <div class="form-group">
             <label for="background">Background Color</label>
-            <input type="color" id="background" name="background" value="#080808" />
+            <div class="alpha-group">
+                <input type="color" id="background" name="background" value="#080808" />
+                <input type="number" id="background-alpha" name="background-alpha" min="0" max="100" value="75" />%
+            </div>
         </div>
 
         <div class="form-group">
@@ -131,7 +135,10 @@
 
         <div class="form-group">
             <label for="colour">Font Color</label>
-            <input type="color" id="colour" name="colour" value="#ffffff" />
+            <div class="alpha-group">
+                <input type="color" id="colour" name="colour" value="#ffffff" />
+                <input type="number" id="colour-alpha" name="colour-alpha" min="0" max="100" value="100" />%
+            </div>
         </div>
 
         <div class="form-group">
@@ -145,7 +152,10 @@
 
         <div class="form-group">
             <label for="shadow-colour">Shadow Color</label>
-            <input type="color" id="shadow-colour" name="shadow-colour" value="#080808"/>
+            <div class="alpha-group">
+                <input type="color" id="shadow-colour" name="shadow-colour" value="#080808" />
+                <input type="number" id="shadow-alpha" name="shadow-alpha" min="0" max="100" value="100" />%
+            </div>
         </div>
 
         <div class="form-group">
@@ -167,8 +177,9 @@
         <button type="submit">Save</button>
     </form>
 
-    <button class="preset-button" id="preset1">Preset 1</button>
-    <button class="preset-button" id="preset2">Preset 2</button>
+    <button class="preset-button" id="preset1">Preset - Clown</button>
+    <button class="preset-button" id="preset2">Preset - Parchment</button>
+    <button class="preset-button" id="preset3">Preset - Default</button>
 
     <script src="options.js" defer></script>
 </body>

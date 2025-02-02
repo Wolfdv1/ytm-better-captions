@@ -9,7 +9,6 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
         browser.storage.sync.get([
             "background",
             "backgroundAlpha",
-            "fontSize",
             "colour",
             "colourAlpha",
             "shadowType",
@@ -20,7 +19,6 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
             sendResponse({
                 background: res.background || "#080808",
                 backgroundAlpha: res.backgroundAlpha || "75",
-                fontSize: res.fontSize || "14",
                 colour: res.colour || "#ffffff",
                 colourAlpha: res.colourAlpha || "100",
                 shadowType: res.shadowType || "none",

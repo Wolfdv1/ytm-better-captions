@@ -3,7 +3,6 @@ async function saveOptions(event) {
     const options = {
         background: document.querySelector("#background").value,
         backgroundAlpha: document.querySelector("#background-alpha").value,
-        fontSize: document.querySelector("#font-size").value,
         colour: document.querySelector("#colour").value,
         colourAlpha: document.querySelector("#colour-alpha").value,
         shadowType: document.querySelector("#shadow-type").value,
@@ -22,7 +21,6 @@ async function restoreOptions() {
     const res = await browser.storage.sync.get([
         "background",
         "backgroundAlpha",
-        "fontSize",
         "colour",
         "colourAlpha",
         "shadowType",
@@ -32,7 +30,6 @@ async function restoreOptions() {
     ]);
     document.querySelector("#background").value = res.background || "#080808";
     document.querySelector("#background-alpha").value = res.backgroundAlpha || "75";
-    document.querySelector("#font-size").value = res.fontSize || "14";
     document.querySelector("#colour").value = res.colour || "#ffffff";
     document.querySelector("#colour-alpha").value = res.colourAlpha || "100";
     document.querySelector("#shadow-type").value = res.shadowType || "none";
@@ -51,7 +48,6 @@ document.getElementById("preset3").addEventListener("click", applyPreset3);
 
 document.getElementById("background").addEventListener("input", updatePreview);
 document.getElementById("background-alpha").addEventListener("input", updatePreview);
-document.getElementById("font-size").addEventListener("input", updatePreview);
 document.getElementById("colour").addEventListener("input", updatePreview);
 document.getElementById("colour-alpha").addEventListener("input", updatePreview);
 document.getElementById("shadow-type").addEventListener("input", updatePreview);
@@ -62,7 +58,6 @@ document.getElementById("font-family").addEventListener("input", updatePreview);
 function applyPreset1() {
     document.getElementById("background").value = "#ffffff";
     document.getElementById("background-alpha").value = "25";
-    document.getElementById("font-size").value = "24";
     document.getElementById("colour").value = "#00ff00";
     document.getElementById("colour-alpha").value = "100";
     document.getElementById("shadow-type").value = "drop-shadow";
@@ -75,7 +70,6 @@ function applyPreset1() {
 function applyPreset2() {
     document.getElementById("background").value = "#ffffff";
     document.getElementById("background-alpha").value = "0";
-    document.getElementById("font-size").value = "24";
     document.getElementById("colour").value = "#f3cb50";
     document.getElementById("colour-alpha").value = "100";
     document.getElementById("shadow-type").value = "drop-shadow";
@@ -88,7 +82,6 @@ function applyPreset2() {
 function applyPreset3() {
     document.getElementById("background").value = "#080808";
     document.getElementById("background-alpha").value = "75";
-    document.getElementById("font-size").value = "14";
     document.getElementById("colour").value = "#ffffff";
     document.getElementById("colour-alpha").value = "100";
     document.getElementById("shadow-type").value = "none";
@@ -101,7 +94,6 @@ function applyPreset3() {
 function updatePreview() {
     const background = document.getElementById("background").value;
     const backgroundAlpha = document.getElementById("background-alpha").value / 100;
-    const fontSize = document.getElementById("font-size").value + "px";
     const colour = document.getElementById("colour").value;
     const colourAlpha = document.getElementById("colour-alpha").value / 100;
     const shadowType = document.getElementById("shadow-type").value;
@@ -113,7 +105,6 @@ function updatePreview() {
 
     document.querySelectorAll(".ytp-caption-segment").forEach((segment) => {
         segment.style.background = hexToRgba(background, backgroundAlpha);
-        segment.style.fontSize = fontSize;
         segment.style.color = hexToRgba(colour, colourAlpha);
         segment.style.fill = hexToRgba(colour, colourAlpha);
         segment.style.textShadow = shadow;

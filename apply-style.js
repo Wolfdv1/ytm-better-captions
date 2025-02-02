@@ -8,7 +8,6 @@ function applyCSS(options) {
             display: inline-block !important;
             white-space: pre-wrap !important;
             background: ${background} !important;
-            font-size: ${options.fontSize}px !important;
             color: ${colour} !important;
             fill: ${colour} !important;
             text-shadow: ${shadow} !important;

@@ -16,6 +16,18 @@ function applyCSS(options) {
     styleSheet.type = "text/css";
     styleSheet.innerText = CSS;
     document.head.appendChild(styleSheet);
+    applyCenterFix(); // TODO make this optional
+}
+
+function applyCenterFix() {
+    const centerFix = `#caption-window-1 {
+        text-align: center !important;
+        left: 18% !important;
+      }`;
+    var styleSheetCenter = document.createElement("style");
+    styleSheetCenter.type = "text/css";
+    styleSheetCenter.innerText = centerFix;
+    document.head.appendChild(styleSheetCenter);
 }
 
 function hexToRgba(hex, alpha) {

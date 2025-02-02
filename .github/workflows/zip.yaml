@@ -1,0 +1,18 @@
+name: Publish
+on:
+  push:
+    branches:
+      - main
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Zip files
+        run: zip -r -0 ytm-better-captions.zip background.js manifest.json options.html options.js ytm_better_caps_icon.svg .
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ytm-better-captions
+          path: ytm-better-captions.zip

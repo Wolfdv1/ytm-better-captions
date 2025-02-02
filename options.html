@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            max-width: 400px;
+            margin: auto;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        label {
+            flex: 1;
+        }
+        input[type="text"], input[type="color"], input[type="number"], select {
+            flex: 2;
+            padding: 5px;
+            margin-left: 10px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .preset-button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        .preset-button:hover {
+            background-color: #0b7dda;
+        }
+        .video-preview {
+            position: relative;
+            width: 50vw;
+            max-width: 840px;
+            margin: auto;
+        }
+        .video-preview img {
+            width: 100%;
+            height: auto;
+        }
+        .ytp-caption-window-container {
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: auto;
+            touch-action: none;
+            text-align: center;
+            overflow: hidden;
+        }
+        .caption-window {
+            position: relative;
+        }
+        .captions-text {
+            overflow-wrap: normal;
+            display: block;
+        }
+        .caption-visual-line {
+            display: block;
+        }
+        .ytp-caption-segment {
+            display: inline-block;
+            white-space: pre-wrap;
+            background: rgba(8, 8, 8, 0.75);
+            font-size: 32px;
+            color: rgb(255, 255, 255);
+            fill: rgb(255, 255, 255);
+            font-family: 'YouTube Noto', Roboto, Arial, Helvetica, Verdana, 'PT Sans Caption', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Settings</h1>
+    <div class="video-preview">
+        <img src="video-placeholder.png" alt="Video Preview">
+        <div class="ytp-caption-window-container" id="ytp-caption-window-container" data-layer="4">
+            <div class="caption-window ytp-caption-window-bottom ytp-caption-window-rollup" id="caption-window-1" dir="ltr" tabindex="0" lang="en">
+                <span class="captions-text">
+                    <span class="caption-visual-line">
+                        <span class="ytp-caption-segment" id="caption-segment-1">Lorem ipsum dolor sit amet</span>
+                    </span>
+                    <span class="caption-visual-line">
+                        <span class="ytp-caption-segment" id="caption-segment-2">consectetur adipiscing elit</span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <form id="settings-form">
+        <div class="form-group">
+            <label for="background">Background Color</label>
+            <input type="color" id="background" name="background" value="#080808" />
+        </div>
+
+        <div class="form-group">
+            <label for="font-size">Font Size</label>
+            <input type="number" id="font-size" name="font-size" placeholder="e.g., 16" />
+        </div>
+
+        <div class="form-group">
+            <label for="colour">Font Color</label>
+            <input type="color" id="colour" name="colour" value="#ffffff" />
+        </div>
+
+        <div class="form-group">
+            <label for="shadow-type">Shadow Type</label>
+            <select id="shadow-type" name="shadow-type">
+                <option value="none">None</option>
+                <option value="outline">Outline</option>
+                <option value="drop-shadow">Drop Shadow</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="shadow-colour">Shadow Color</label>
+            <input type="color" id="shadow-colour" name="shadow-colour" value="#080808"/>
+        </div>
+
+        <div class="form-group">
+            <label for="font-family">Font Family</label>
+            <select id="font-family" name="font-family" value="YouTube Noto, Roboto, Arial, Helvetica, Verdana, PT Sans Caption, sans-serif">
+                <option value="YouTube Noto, Roboto, Arial, Helvetica, Verdana, PT Sans Caption, sans-serif">YouTube Default</option>
+                <option value="Arial">Arial</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Monotype Corsiva">Monotype Corsiva</option>
+                <option value="URW Chancery L">URW Chancery L</option>
+                <option value="Apple Chancery">Apple Chancery</option>
+                <option value="Dancing Script">Dancing Script</option>
+            </select>
+        </div>
+
+        <button type="submit">Save</button>
+    </form>
+
+    <button class="preset-button" id="preset1">Preset 1</button>
+    <button class="preset-button" id="preset2">Preset 2</button>
+
+    <script src="options.js" defer></script>
+</body>
+</html>

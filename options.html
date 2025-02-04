@@ -5,101 +5,219 @@
     <meta name="color-scheme" content="dark light" />
     <title>Settings</title>
     <style>
+        :root {
+            color-scheme: light dark;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-        h1 {
+            background-color: Canvas;
+            color: CanvasText;
             text-align: center;
+            padding: 10px;
+            max-width: 100vw;
+            overflow-x: hidden;
         }
+
+        h1 {
+            margin: 10px 0;
+        }
+
         form {
-            display: flex;
-            flex-direction: column;
-            max-width: 400px;
+            width: min(90vw, 840px);
             margin: auto;
+            background-color: Canvas;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid ButtonBorder;
+            margin: 0 auto 20px;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
         }
+
         .form-group {
             display: flex;
             align-items: center;
-            margin-top: 10px;
+            margin: 10px 0;
+            gap: 15px;
         }
+
         label {
+            min-width: 120px;
+            font: inherit;
+            text-align: left;
+        }
+
+        select, input[type="checkbox"] {
+            background-color: Field;
+            color: FieldText;
+            border: 1px solid ButtonBorder;
+            padding: 8px;
+            border-radius: 4px;
+            font: inherit;
             flex: 1;
         }
-        input[type="text"], input[type="color"], input[type="number"], select {
-            flex: 2;
-            padding: 5px;
-            margin-left: 10px;
-        }
+
         button {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
+            background-color: ButtonFace;
+            color: ButtonText;
+            border: 1px solid ButtonBorder;
+            padding: 8px 16px;
+            border-radius: 4px;
             cursor: pointer;
+            font: inherit;
             width: 100%;
+            margin-top: 15px;
         }
+
         button:hover {
-            background-color: #45a049;
+            background-color: ButtonHover;
         }
+
+        .preset-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: min(90vw, 840px);
+            margin: 10px auto;
+        }
+
         .preset-button {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            cursor: pointer;
+            width: 30%;
+            aspect-ratio: 1;
+            margin: 0;
             display: block;
-            width: 90%;
-            text-align: center;
+            font-size: 0.9em;
         }
-        .preset-button:hover {
-            background-color: #0b7dda;
-        }
+
         .video-preview {
             position: relative;
-            width: 50vw;
-            max-width: 840px;
-            margin: auto;
+            width: min(90vw, 840px);
+            aspect-ratio: 16/9;
+            margin: 20px auto 40px;
+            border: 1px solid ButtonBorder;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #000;
         }
+
         .video-preview img {
             width: 100%;
-            height: auto;
+            height: 100%;
+            object-fit: cover;
         }
+
         .ytp-caption-window-container {
             position: absolute;
-            bottom: 35%;
+            bottom: 15%;
             left: 50%;
             transform: translateX(-50%);
-            width: 100%;
-            height: auto;
-            touch-action: none;
+            width: 80%;
             text-align: center;
-            overflow: hidden;
         }
-        .caption-window {
-            position: relative;
-        }
-        .captions-text {
-            overflow-wrap: normal;
-            display: block;
-        }
+
         .caption-visual-line {
             display: block;
         }
+
         .ytp-caption-segment {
             display: inline-block;
             white-space: pre-wrap;
             background: rgba(8, 8, 8, 0.75);
             color: rgb(255, 255, 255);
-            fill: rgb(255, 255, 255);
-            font-family: 'YouTube Noto', Roboto, Arial, Helvetica, Verdana, 'PT Sans Caption', sans-serif;
+            margin: 1px 0;
+            border-radius: 0;
+        }
+
+        .caption-window {
+            margin-bottom: 40px;
+        }
+
+        .form-group input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            margin: 0;
+            cursor: pointer;
+            position: relative;
+            top: -1px;
+        }
+
+        .form-group.center-captions {
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(128, 128, 128, 0.1);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            form {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-group {
+                flex-direction: row;
+                align-items: center;
+                gap: 5px;
+            }
+
+            label {
+                margin-bottom: 0;
+                flex: 1;
+            }
+
+            body {
+                padding: 10px;
+            }
+
+            .video-preview {
+                margin: 10px auto 20px;
+            }
+
+            .form-group.center-captions {
+                flex-direction: row;
+                align-items: center;
+                padding: 15px;
+            }
+
+            .form-group input[type="checkbox"] {
+                width: 32px;
+                height: 32px;
+            }
+
+            .preset-buttons {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .preset-button {
+                width: 30%;
+                aspect-ratio: 1;
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-height: 800px) {
+            .video-preview {
+                margin: 10px auto 20px;
+            }
+
+            .form-group {
+                margin: 10px 0;
+            }
+
+            form {
+                padding: 10px;
+            }
         }
     </style>
+    <script type="module" src="colour-picker.js"></script>
+    <script type="module" src="options.js" defer></script>
 </head>
 <body>
     <h1>Settings</h1>
@@ -121,67 +239,57 @@
     <form id="settings-form">
         <div class="form-group">
             <label for="background">Background Color</label>
-            <div class="alpha-group">
-                <input type="color" id="background" name="background" value="#080808" />
-                <input type="number" id="background-alpha" name="background-alpha" min="0" max="100" value="75" />%
-            </div>
+            <colour-picker id="background" value="rgba(8, 8, 8, 0.75)"></colour-picker>
         </div>
 
         <div class="form-group">
             <label for="colour">Font Color</label>
-            <div class="alpha-group">
-                <input type="color" id="colour" name="colour" value="#ffffff" />
-                <input type="number" id="colour-alpha" name="colour-alpha" min="0" max="100" value="100" />%
-            </div>
+            <colour-picker id="colour" value="rgba(255, 255, 255, 1)"></colour-picker>
         </div>
 
         <div class="form-group">
             <label for="shadow-type">Shadow Type</label>
             <select id="shadow-type" name="shadow-type">
                 <option value="none">None</option>
-                <option value="outline">Outline</option>
+                <option value="raised">Raised</option>
                 <option value="drop-shadow">Drop Shadow</option>
+                <option value="depressed">Depressed</option>
+                <option value="outline">Outline</option>
             </select>
         </div>
 
         <div class="form-group">
             <label for="shadow-colour">Shadow Color</label>
-            <div class="alpha-group">
-                <input type="color" id="shadow-colour" name="shadow-colour" value="#080808" />
-                <input type="number" id="shadow-alpha" name="shadow-alpha" min="0" max="100" value="100" />%
-            </div>
+            <colour-picker id="shadow-colour" value="rgba(8, 8, 8, 1)"></colour-picker>
         </div>
 
         <div class="form-group">
             <label for="font-family">Font Family</label>
-            <select id="font-family" name="font-family" value="YouTube Noto, Roboto, Arial, Helvetica, Verdana, PT Sans Caption, sans-serif">
-                <option value="YouTube Noto, Roboto, Arial, Helvetica, Verdana, PT Sans Caption, sans-serif">YouTube Default</option>
-                <option value="Arial, sans-serif">Arial</option>
-                <option value="Courier New, Courier, monospace">Courier New</option>
+            <select id="font-family" name="font-family">
+                <option value='"YouTube Noto", Roboto, Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif'>Default Sans-Serif</option>
+                <option value='"Courier New", Courier, "Nimbus Mono L", "Cutive Mono", monospace'>Monospaced Serif</option>
+                <option value='"Times New Roman", Times, Georgia, Cambria, "PT Serif Caption", serif'>Proportional Serif</option>
+                <option value='"Deja Vu Sans Mono", "Lucida Console", Monaco, Consolas, "PT Mono", monospace'>Monospaced Sans-Serif</option>
+                <option value='"Comic Sans MS", Impact, Handlee, fantasy'>Comic Sans</option>
+                <option value='"Monotype Corsiva", "URW Chancery L", "Apple Chancery", "Dancing Script", cursive'>Cursive</option>
+                <option value='Arial, Helvetica, Verdana, "Marcellus SC", sans-serif' data-variant="small-caps">Small Capitals</option>
+                <option value="Wingdings, webdings, symbol">Wingdings</option>
                 <option value="Georgia, serif">Georgia</option>
-                <option value="Times New Roman, Times, serif">Times New Roman</option>
-                <option value="Verdana, sans-serif">Verdana</option>
-                <option value="Roboto, Arial, sans-serif">Roboto</option>
-                <option value="Noto Sans, Arial, sans-serif">Noto Sans</option>
-                <option value="Dancing Script, cursive">Dancing Script</option>
-                <option value="Wingdings">Wingdings</option>
             </select>
         </div>
 
-        <div class="form-group">
-    <label for="center-captions">Center Captions</label>
-    <input type="checkbox" id="center-captions" name="center-captions">
-</div>
-        
+        <div class="form-group center-captions">
+            <label for="center-captions">Center Captions</label>
+            <input type="checkbox" id="center-captions" name="center-captions">
         </div>
 
         <button type="submit">Save</button>
     </form>
 
-    <button class="preset-button" id="preset1">Preset - Clown</button>
-    <button class="preset-button" id="preset2">Preset - Parchment</button>
-    <button class="preset-button" id="preset3">Preset - Default</button>
-
-    <script src="options.js" defer></script>
+    <div class="preset-buttons">
+        <button class="preset-button" id="preset1">Clown</button>
+        <button class="preset-button" id="preset2">Parchment</button>
+        <button class="preset-button" id="preset3">Default</button>
+    </div>
 </body>
 </html>

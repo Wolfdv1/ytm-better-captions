@@ -14,10 +14,10 @@ function applyCenterFix() {
     const centerFix = `.caption-window {
   left: 50vw !important;
   position: absolute !important;
-  transform: translateX(-30vw) !important;
+  transform: translateX(-35vw) !important;
   text-align: left !important;
   margin-left: 0px !important;
-  width: 60vw !important;
+  width: 80vw !important;
 }`;
     var styleSheetCenter = document.createElement("style");
     styleSheetCenter.type = "text/css";

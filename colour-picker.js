@@ -1,3 +1,4 @@
+// Template for the colour picker component
 const template = document.createElement('template');
 template.innerHTML = `
     <style>
@@ -121,6 +122,7 @@ template.innerHTML = `
             border: 1px solid ButtonBorder;
             border-radius: 4px;
             font: inherit;
+            cursor: text;
         }
 
         /* Confirm button */
@@ -196,6 +198,51 @@ template.innerHTML = `
                 padding-bottom: min(100%, calc(50vh - 180px));
             }
         }
+
+        #selection-circle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        #selection-circle::before,
+        #selection-circle::after {
+            content: '';
+            position: absolute;
+            background: white;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        #selection-circle::before {
+            width: 20px;
+            height: 2px;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #selection-circle::after {
+            width: 2px;
+            height: 20px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #colour-preview {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 2;
+        }
     </style>
     <div class="colour-picker-container">
         <button type="button" class="colour-preview-button"></button>
@@ -210,10 +257,10 @@ template.innerHTML = `
                     <input type="range" class="alpha-slider" id="alpha-slider" min="0" max="1" step="0.01" value="1">
                 </div>
                 <div id="selected-colour">
-                    <span>R:</span> <input type="text" id="colour-r" readonly>
-                    <span>G:</span> <input type="text" id="colour-g" readonly>
-                    <span>B:</span> <input type="text" id="colour-b" readonly>
-                    <span>A:</span> <input type="text" id="colour-a" readonly>
+                    <span>R:</span> <input type="text" id="colour-r">
+                    <span>G:</span> <input type="text" id="colour-g">
+                    <span>B:</span> <input type="text" id="colour-b">
+                    <span>A:</span> <input type="text" id="colour-a">
                 </div>
                 <div class="action-buttons">
                     <button type="button" class="confirm-button">Confirm</button>
@@ -223,7 +270,14 @@ template.innerHTML = `
     </div>
 `;
 
+/**
+ * Custom element that provides a color picker with RGB and alpha channel support
+ * @extends HTMLElement
+ */
 class ColourPicker extends HTMLElement {
+    /**
+     * Initialize the colour picker and set up its DOM structure
+     */
     constructor() {
         super();
         const shadowRoot = this.attachShadow({ mode: 'open' });
@@ -260,8 +314,23 @@ class ColourPicker extends HTMLElement {
                 }
             });
         }).observe(this, { attributes: true });
+
+        // Add input event listeners for RGBA inputs
+        this.colourRInput.addEventListener('input', () => this.updateFromInputs());
+        this.colourGInput.addEventListener('input', () => this.updateFromInputs());
+        this.colourBInput.addEventListener('input', () => this.updateFromInputs());
+        this.colourAInput.addEventListener('input', () => this.updateFromInputs());
+
+        // Add validation on blur
+        this.colourRInput.addEventListener('blur', () => this.validateInput(this.colourRInput, 0, 255));
+        this.colourGInput.addEventListener('blur', () => this.validateInput(this.colourGInput, 0, 255));
+        this.colourBInput.addEventListener('blur', () => this.validateInput(this.colourBInput, 0, 255));
+        this.colourAInput.addEventListener('blur', () => this.validateInput(this.colourAInput, 0, 1));
     }
 
+    /**
+     * Set up all event listeners for the colour picker
+     */
     setupEventListeners() {
         this.previewButton.addEventListener('click', (e) => {
             e.preventDefault();
@@ -308,6 +377,9 @@ class ColourPicker extends HTMLElement {
         });
     }
 
+    /**
+     * Toggle the visibility of the colour picker widget
+     */
     togglePicker() {
         const isVisible = this.widget.style.display === 'flex';
         this.widget.style.display = isVisible ? 'none' : 'flex';
@@ -316,6 +388,9 @@ class ColourPicker extends HTMLElement {
         }
     }
 
+    /**
+     * Confirm the selected colour and dispatch change event
+     */
     confirmColour() {
         const currentColour = this.widget.getAttribute('value');
         this.setAttribute('value', currentColour);
@@ -328,45 +403,124 @@ class ColourPicker extends HTMLElement {
         }));
     }
 
+    /**
+     * Update the colour display in the picker and preview button
+     * @param {string} colour - RGBA colour string
+     */
     updateColour(colour) {
         this.previewButton.style.backgroundColor = colour;
         this.widget.setAttribute('value', colour);
     }
 
+    /**
+     * Initialize the picker with the current colour value
+     */
     initializePickerWithCurrentColour() {
         const currentColour = this.getAttribute('value');
         if (currentColour) {
+            const rgba = currentColour.match(/rgba\((\d+), (\d+), (\d+), (\d+(\.\d+)?)\)/);
+            if (rgba) {
+                this.alpha = parseFloat(rgba[4]);
+                this.alphaSlider.value = this.alpha;
+                this.lastRGB = { r: parseInt(rgba[1]), g: parseInt(rgba[2]), b: parseInt(rgba[3]) };
+                this.colourRInput.value = this.lastRGB.r;
+                this.colourGInput.value = this.lastRGB.g;
+                this.colourBInput.value = this.lastRGB.b;
+                this.colourAInput.value = this.alpha;
+                this.updateAlphaSliderGradient();
+                this.updateColour(currentColour);
+                
+                requestAnimationFrame(() => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const pos = this.approximateColorPosition(this.lastRGB);
+                    this.selectionCircle.style.left = `${pos.x * rect.width}px`;
+                    this.selectionCircle.style.top = `${pos.y * rect.height}px`;
+                });
+            }
         }
     }
 
+    /**
+     * Calculate the approximate position of a color in the picker
+     * @param {Object} rgb - RGB color object with r, g, b properties
+     * @returns {Object} Position object with x, y coordinates
+     */
+    approximateColorPosition(rgb) {
+        const r = rgb.r / 255;
+        const g = rgb.g / 255;
+        const b = rgb.b / 255;
+        
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const delta = max - min;
+        
+        let h;
+        if (delta === 0) h = 0;
+        else if (max === r) h = ((g - b) / delta) % 6;
+        else if (max === g) h = (b - r) / delta + 2;
+        else h = (r - g) / delta + 4;
+        
+        h = h * 60;
+        if (h < 0) h += 360;
+        
+        const s = max === 0 ? 0 : delta / max;
+        
+        const v = max;
+        
+        const x = h / 360;
+        const y = 1 - v; 
+        
+        return { x, y };
+    }
+
+    /**
+     * Specify which attributes should be observed for changes
+     * @returns {string[]} Array of attribute names to observe
+     */
     static get observedAttributes() {
         return ['value'];
     }
 
+    /**
+     * Handle attribute changes
+     * @param {string} name - Name of the changed attribute
+     * @param {string} oldValue - Previous value
+     * @param {string} newValue - New value
+     */
     attributeChangedCallback(name, oldValue, newValue) {
         if (name === 'value' && oldValue !== newValue) {
             this.updateColour(newValue);
         }
     }
 
+    /**
+     * Draw the colour picker gradient canvas
+     */
     drawColourPicker() {
+        // Create horizontal rainbow gradient
         const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, 0);
-        gradient.addColorStop(0, 'red');
-        gradient.addColorStop(1 / 6, 'orange');
-        gradient.addColorStop(2 / 6, 'yellow');
-        gradient.addColorStop(3 / 6, 'green');
-        gradient.addColorStop(4 / 6, 'cyan');
-        gradient.addColorStop(5 / 6, 'blue');
-        gradient.addColorStop(1, 'magenta');
+        
+        // Pure primary and secondary colors
+        gradient.addColorStop(0/6, 'rgb(255, 0, 0)');      // Red
+        gradient.addColorStop(1/6, 'rgb(255, 255, 0)');    // Yellow
+        gradient.addColorStop(2/6, 'rgb(0, 255, 0)');      // Green
+        gradient.addColorStop(3/6, 'rgb(0, 255, 255)');    // Cyan
+        gradient.addColorStop(4/6, 'rgb(0, 0, 255)');      // Blue
+        gradient.addColorStop(5/6, 'rgb(255, 0, 255)');    // Magenta
+        gradient.addColorStop(6/6, 'rgb(255, 0, 0)');      // Red (again to complete the circle)
+        
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+        // White to transparent gradient (top to bottom)
         const whiteGradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
         whiteGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        whiteGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
         whiteGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
         this.ctx.fillStyle = whiteGradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+        // Transparent to black gradient (top to bottom)
         const blackGradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
         blackGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
         blackGradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
@@ -374,6 +528,10 @@ class ColourPicker extends HTMLElement {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    /**
+     * Handle colour picking from the canvas
+     * @param {Event} event - Mouse or touch event
+     */
     pickColour(event) {
         const rect = this.canvas.getBoundingClientRect();
         let x = event.touches ? event.touches[0].clientX - rect.left : event.clientX - rect.left;
@@ -391,21 +549,37 @@ class ColourPicker extends HTMLElement {
         this.colourBInput.value = this.lastRGB.b;
         this.colourAInput.value = this.alpha;
         
-        this.selectionCircle.style.left = `${x - this.selectionCircle.offsetWidth / 2}px`;
-        this.selectionCircle.style.top = `${y - this.selectionCircle.offsetHeight / 2}px`;
+        this.selectionCircle.style.left = `${x}px`;
+        this.selectionCircle.style.top = `${y}px`;
+        
+        this.colourPreview.style.left = `${x}px`;
+        this.colourPreview.style.top = `${y - 50}px`;
+        this.colourPreview.style.transform = 'translate(-50%, -50%)';
+        this.colourPreview.style.backgroundColor = rgbaColour;
+        this.colourPreview.style.display = 'block';
         
         this.updateColour(rgbaColour);
         this.updateAlphaSliderGradient();
     }
 
+    /**
+     * Start the colour picking process
+     * @param {Event} event - Mouse or touch event
+     */
     startPicking(event) {
         this.pickColour(event);
     }
 
+    /**
+     * Stop the colour picking process
+     */
     stopPicking() {
         this.colourPreview.style.display = 'none';
     }
 
+    /**
+     * Update the alpha channel value
+     */
     updateAlpha() {
         this.alpha = this.alphaSlider.value;
         this.colourAInput.value = this.alpha;
@@ -413,13 +587,57 @@ class ColourPicker extends HTMLElement {
         this.updateColour(rgbaColour);
     }
 
+    /**
+     * Update the alpha slider gradient based on current colour
+     */
     updateAlphaSliderGradient() {
         const currentColour = `rgb(${this.lastRGB.r}, ${this.lastRGB.g}, ${this.lastRGB.b})`;
         this.alphaSlider.style.background = `linear-gradient(to right, rgba(${this.lastRGB.r}, ${this.lastRGB.g}, ${this.lastRGB.b}, 0), rgba(${this.lastRGB.r}, ${this.lastRGB.g}, ${this.lastRGB.b}, 1))`;
         this.alphaSlider.style.color = currentColour;
     }
+
+    /**
+     * Validate input values within specified range
+     * @param {HTMLInputElement} input - Input element to validate
+     * @param {number} min - Minimum allowed value
+     * @param {number} max - Maximum allowed value
+     */
+    validateInput(input, min, max) {
+        let value = parseFloat(input.value);
+        if (isNaN(value)) value = min;
+        value = Math.max(min, Math.min(max, value));
+        input.value = value;
+        this.updateFromInputs();
+    }
+
+    /**
+     * Update colour from RGBA input values
+     */
+    updateFromInputs() {
+        const r = Math.min(255, Math.max(0, parseInt(this.colourRInput.value) || 0));
+        const g = Math.min(255, Math.max(0, parseInt(this.colourGInput.value) || 0));
+        const b = Math.min(255, Math.max(0, parseInt(this.colourBInput.value) || 0));
+        const a = Math.min(1, Math.max(0, parseFloat(this.colourAInput.value) || 0));
+
+        this.lastRGB = { r, g, b };
+        this.alpha = a;
+        
+        const rgbaColour = `rgba(${r}, ${g}, ${b}, ${a})`;
+        this.updateColour(rgbaColour);
+        this.updateAlphaSliderGradient();
+        
+        // Update alpha slider to match
+        this.alphaSlider.value = a;
+
+        // Move selection circle to match RGB values
+        const rect = this.canvas.getBoundingClientRect();
+        const pos = this.approximateColorPosition(this.lastRGB);
+        this.selectionCircle.style.left = `${pos.x * rect.width}px`;
+        this.selectionCircle.style.top = `${pos.y * rect.height}px`;
+    }
 }
 
+// Register the custom element if not already registered
 if (!customElements.get('colour-picker')) {
     customElements.define('colour-picker', ColourPicker);
 }

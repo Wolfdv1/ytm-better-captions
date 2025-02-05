@@ -1,15 +1,23 @@
 <svg width="256" height="256" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-
+ <!-- Main group containing all elements -->
  <g>
   <title>Layer 1</title>
+  <!-- Group for the first set of text elements -->
   <g id="svg_11">
+   <!-- First text element -->
    <text transform="matrix(8.21907, 3.87309, -3.09495, 6.70724, 157.444, -242.623)" font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Texturina'" font-size="24" id="svg_1" y="53.969" x="-1.45795" stroke-width="0" stroke="#000" fill="#999999">C</text>
+   <!-- Second text element -->
    <text transform="matrix(8.18122, 3.85526, -3.09142, 6.69959, 156.34, -241.725)" font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Texturina'" font-size="22" id="svg_6" y="53.04604" x="-0.82126" stroke-width="0" stroke="#000" fill="#999999">C</text>
+   <!-- Third text element -->
    <text transform="matrix(8.27956, 3.9016, -3.07602, 6.66622, 156.643, -241.164)" font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Texturina'" font-size="23" id="svg_4" y="53.54199" x="-1.21437" stroke-width="0" stroke="#000" fill="#0f0808">C</text>
   </g>
+  <!-- Group for the second set of text elements -->
   <g id="svg_15">
+   <!-- Fourth text element -->
    <text transform="matrix(8.21907, 3.87309, -3.09495, 6.70724, 157.444, -242.623)" font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Texturina'" font-size="24" id="svg_12" y="58.81457" x="13.12088" stroke-width="0" stroke="#000" fill="#999999">C</text>
+   <!-- Fifth text element -->
    <text transform="matrix(8.18122, 3.85526, -3.09142, 6.69959, 156.34, -241.725)" font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Texturina'" font-size="22" id="svg_13" y="57.89714" x="13.82501" stroke-width="0" stroke="#000" fill="#999999">C</text>
+   <!-- Sixth text element -->
    <text transform="matrix(8.27956, 3.9016, -3.07602, 6.66622, 156.643, -241.164)" font-weight="bold" xml:space="preserve" text-anchor="start" font-family="'Texturina'" font-size="23" id="svg_14" y="58.41737" x="13.25794" stroke-width="0" stroke="#000" fill="#0f0808">C</text>
   </g>
  </g>

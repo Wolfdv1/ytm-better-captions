@@ -3,40 +3,41 @@
 <head>
     <meta charset="utf-8" />
     <meta name="color-scheme" content="dark light" />
-    <title>Settings</title>
+    <title>YouTube Mobile Caption Settings</title>
     <style>
+        /* CSS styles for the options page */
         :root {
             color-scheme: light dark;
         }
 
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             background-color: Canvas;
             color: CanvasText;
             text-align: center;
-            padding: 10px;
             max-width: 100vw;
             overflow-x: hidden;
-        }
-
-        h1 {
-            margin: 10px 0;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            box-sizing: border-box;
+            position: relative;
         }
 
         form {
-            width: min(90vw, 840px);
-            margin: auto;
+            width: 100%;
+            max-width: 800px; 
+            margin: 20px auto;
             background-color: Canvas;
             padding: 15px;
             border-radius: 10px;
             border: 1px solid ButtonBorder;
-            margin: 0 auto 20px;
             max-height: calc(100vh - 300px);
             overflow-y: auto;
+            box-sizing: border-box;
         }
 
         .form-group {
@@ -78,10 +79,16 @@
             background-color: ButtonHover;
         }
 
+        button.saved {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+
         .preset-buttons {
             display: flex;
             justify-content: space-between;
-            width: min(90vw, 840px);
+            width: 100%;
+            max-width: 800px;
             margin: 10px auto;
         }
 
@@ -95,13 +102,15 @@
 
         .video-preview {
             position: relative;
-            width: min(90vw, 840px);
-            aspect-ratio: 16/9;
-            margin: 20px auto 40px;
-            border: 1px solid ButtonBorder;
-            border-radius: 10px;
-            overflow: hidden;
+            width: 100vw;
             background-color: #000;
+            box-sizing: border-box;
+            margin: 0;
+            left: 0;
+            top: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .video-preview img {
@@ -110,26 +119,69 @@
             object-fit: cover;
         }
 
+
         .ytp-caption-window-container {
+            direction: ltr;
+            font-family: "YouTube Noto", Roboto, Arial, Helvetica, sans-serif;
+            overflow-wrap: break-word;
+            pointer-events: none;
             position: absolute;
-            bottom: 15%;
+            text-align: left;
+            bottom: 10%;
             left: 50%;
             transform: translateX(-50%);
             width: 80%;
             text-align: center;
+            color: rgb(238, 238, 238);
+        }
+
+        .ytp-caption-window {
+            bottom: 7.8px;
+            cursor: grab;
+            direction: ltr;
+            line-height: normal;
+            margin-bottom: 16px;
+            overflow-wrap: break-word;
+            pointer-events: auto;
+            position: absolute;
+            text-align: left;
+            user-select: none;
         }
 
         .caption-visual-line {
+            cursor: grab;
+            direction: ltr;
             display: block;
+            forced-color-adjust: none;
+            line-height: normal;
+            overflow-wrap: normal;
+            pointer-events: auto;
+            text-align: left;
         }
 
         .ytp-caption-segment {
+            background-clip: border-box;
+            background-color: rgba(8, 8, 8, 0.75);
+            background-image: none;
+            background-origin: padding-box;
+            background-position-x: 0%;
+            background-position-y: 0%;
+            background-repeat: repeat;
+            background-size: auto;
+            cursor: grab;
+            direction: ltr;
             display: inline-block;
-            white-space: pre-wrap;
-            background: rgba(8, 8, 8, 0.75);
-            color: rgb(255, 255, 255);
-            margin: 1px 0;
-            border-radius: 0;
+            font-family: "YouTube Noto", Roboto, Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif;
+            line-height: normal;
+            overflow-wrap: normal;
+            padding-bottom: 0px;
+            padding-left: 3.85556px;
+            padding-right: 3.85556px;
+            padding-top: 0px;
+            pointer-events: auto;
+            text-align: left;
+            text-wrap-mode: wrap;
+            white-space-collapse: preserve;
         }
 
         .caption-window {
@@ -159,7 +211,7 @@
             }
         }
 
-        @media (max-width: 600px) {
+        @media (min-width: 400px) {
             .form-group {
                 flex-direction: row;
                 align-items: center;
@@ -172,11 +224,11 @@
             }
 
             body {
-                padding: 10px;
+                padding: 0;
             }
 
             .video-preview {
-                margin: 10px auto 20px;
+                margin: 0;
             }
 
             .form-group.center-captions {
@@ -202,9 +254,9 @@
             }
         }
 
-        @media (max-height: 800px) {
+        @media (min-height: 600px) {
             .video-preview {
-                margin: 10px auto 20px;
+                margin: 0 auto 20px;
             }
 
             .form-group {
@@ -220,12 +272,11 @@
     <script type="module" src="options.js" defer></script>
 </head>
 <body>
-    <h1>Settings</h1>
+    <!-- Video preview section -->
     <div class="video-preview">
         <img src="video-placeholder.png" alt="Video Preview">
         <div class="ytp-caption-window-container" id="ytp-caption-window-container" data-layer="4">
-            <div class="caption-window ytp-caption-window-bottom ytp-caption-window-rollup" id="caption-window-1" dir="ltr" tabindex="0" lang="en">
-                <span class="captions-text">
+            <div class="ytp-caption-window" id="ytp-caption-window">
                     <span class="caption-visual-line">
                         <span class="ytp-caption-segment" id="caption-segment-1">Lorem ipsum dolor sit amet</span>
                     </span>
@@ -236,6 +287,7 @@
             </div>
         </div>
     </div>
+    <!-- Settings form section -->
     <form id="settings-form">
         <div class="form-group">
             <label for="background">Background Color</label>
@@ -278,6 +330,11 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label for="font-scale">Font Scale</label>
+            <input type="range" id="font-scale" name="font-scale" min="0.2" max="4" step="0.1" value="1" style="width: 90%;">
+        </div>
+
         <div class="form-group center-captions">
             <label for="center-captions">Center Captions</label>
             <input type="checkbox" id="center-captions" name="center-captions">
@@ -286,6 +343,7 @@
         <button type="submit">Save</button>
     </form>
 
+    <!-- Preset buttons section -->
     <div class="preset-buttons">
         <button class="preset-button" id="preset1">Clown</button>
         <button class="preset-button" id="preset2">Parchment</button>

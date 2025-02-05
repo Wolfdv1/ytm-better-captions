@@ -1,3 +1,7 @@
+/**
+ * Save the options selected by the user.
+ * @param {Event} event - The event triggered by the form submission.
+ */
 async function saveOptions(event) {
     event.preventDefault();
     const options = {
@@ -6,7 +10,8 @@ async function saveOptions(event) {
         shadowType: document.querySelector("#shadow-type").value,
         shadowColour: document.querySelector("#shadow-colour").getAttribute("value"),
         fontFamily: document.querySelector("#font-family").value,
-        centerCaptions: document.querySelector("#center-captions").checked
+        centerCaptions: document.querySelector("#center-captions").checked,
+        fontScale: document.querySelector("#font-scale").value
     };
     const cssString = generateCSS(options);
     await browser.storage.sync.set({ cssString, ...options });
@@ -14,8 +19,24 @@ async function saveOptions(event) {
         message: "optionsChanged",
         cssString: cssString
     });
+
+    // Display confirmation message
+    const saveButton = document.querySelector("button[type='submit']");
+    saveButton.textContent = "Saved and Applied!";
+    saveButton.classList.add("saved"); // Add a class for styling
+
+    // Revert the button text after a short delay
+    setTimeout(() => {
+        saveButton.textContent = "Save";
+        saveButton.classList.remove("saved");
+    }, 2000); // Revert after 2 seconds
 }
 
+/**
+ * Generate the CSS string based on the options provided.
+ * @param {Object} options - The options selected by the user.
+ * @returns {string} The generated CSS string.
+ */
 function generateCSS(options) {
     const backgroundColor = options.background;
     const fontColor = options.colour;
@@ -40,31 +61,89 @@ function generateCSS(options) {
         extraStyle = 'font-variant: small-caps;';
     }
 
+    const fontScale = options.fontScale || 1;
+
+    let centerStyle = '';
+    if (options.centerCaptions) {
+        centerStyle = `
+        .caption-window {
+            width: 95vw !important;
+            left: 2.5vw !important;
+            margin-left: 0vw !important;
+            border-left-width: 0vw !important;
+        }
+        .ytp-caption-window-container {
+            width: 100vw !important;
+        }`;
+    }
+
     return `
         .ytp-caption-segment {
             background: ${backgroundColor} !important;
             color: ${fontColor} !important;
             text-shadow: ${shadow} !important;
             font-family: ${fontFamily} !important;
+            font-size: max(abs(calc((1vw - 2vh) * ${fontScale} )), abs(calc((3vw - 2vh) * ${fontScale} ))) !important;
             ${extraStyle}
         }
+        ${centerStyle}
     `;
 }
 
+/**
+ * Update the preview of the captions based on the current options.
+ */
 function updatePreview() {
     const background = document.querySelector("#background").getAttribute("value");
     const colour = document.querySelector("#colour").getAttribute("value");
     const shadowType = document.querySelector("#shadow-type").value;
     const shadowColour = document.querySelector("#shadow-colour").getAttribute("value");
     const fontFamily = document.querySelector("#font-family").value;
+    const fontScale = parseFloat(document.querySelector("#font-scale").value);
 
     let shadow;
     if (shadowType === "none") {
         shadow = "none";
+    } else if (shadowType === "raised") {
+        shadow = `${shadowColour} 1px 1px 0px, ${shadowColour} 2px 2px 0px, ${shadowColour} 3px 3px 0px`;
     } else if (shadowType === "drop-shadow") {
-        shadow = `${shadowColour} 1px 1px 2px`;
+        shadow = `${shadowColour} 2px 2px 3px, ${shadowColour} 2px 2px 4px, ${shadowColour} 2px 2px 5px`;
+    } else if (shadowType === "depressed") {
+        shadow = `${shadowColour} 1px 1px 0px, ${shadowColour} -1px -1px 0px`;
     } else if (shadowType === "outline") {
         shadow = `${shadowColour} 0px 0px 2px, ${shadowColour} 0px 0px 2px, ${shadowColour} 0px 0px 2px, ${shadowColour} 0px 0px 2px, ${shadowColour} 0px 0px 2px`;
+    }
+
+    const centerCaptions = document.querySelector("#center-captions").checked;
+    const captionWindow = document.querySelector(".ytp-caption-window");
+    const container = document.querySelector(".ytp-caption-window-container");
+
+    if (centerCaptions) {
+        container.style.textAlign = "center";
+        captionWindow.style.position = "relative";
+        captionWindow.style.left = "auto";
+        captionWindow.style.width = "100%";
+        captionWindow.style.display = "flex";
+        captionWindow.style.flexDirection = "column";
+        captionWindow.style.alignItems = "center";
+        
+        document.querySelectorAll(".caption-visual-line").forEach(line => {
+            line.style.textAlign = "center";
+            line.style.width = "100%";
+        });
+    } else {
+        container.style.textAlign = "left";
+        captionWindow.style.position = "absolute";
+        captionWindow.style.left = "";
+        captionWindow.style.width = "";
+        captionWindow.style.display = "";
+        captionWindow.style.flexDirection = "";
+        captionWindow.style.alignItems = "";
+        
+        document.querySelectorAll(".caption-visual-line").forEach(line => {
+            line.style.textAlign = "";
+            line.style.width = "";
+        });
     }
 
     document.querySelectorAll(".ytp-caption-segment").forEach((segment) => {
@@ -73,9 +152,13 @@ function updatePreview() {
         segment.style.fill = colour;
         segment.style.textShadow = shadow;
         segment.style.fontFamily = fontFamily;
+        segment.style.fontSize = `max(abs(calc((1vw - 2vh) * ${fontScale})), abs(calc((3vw - 2vh) * ${fontScale})))`;
     });
 }
 
+/**
+ * Restore the options from the browser storage.
+ */
 async function restoreOptions() {
     const res = await browser.storage.sync.get([
         "background",
@@ -83,7 +166,8 @@ async function restoreOptions() {
         "shadowType",
         "shadowColour",
         "fontFamily",
-        "centerCaptions"
+        "centerCaptions",
+        "fontScale"
     ]);
     
     document.querySelector("#background").setAttribute("value", res.background || "rgba(8, 8, 8, 0.75)");
@@ -92,49 +176,69 @@ async function restoreOptions() {
     document.querySelector("#shadow-colour").setAttribute("value", res.shadowColour || "rgba(8, 8, 8, 1)");
     document.querySelector("#font-family").value = res.fontFamily || "YouTube Noto, Roboto, Arial, Helvetica, Verdana, PT Sans Caption, sans-serif";
     document.querySelector("#center-captions").checked = res.centerCaptions || false;
+    document.querySelector("#font-scale").value = res.fontScale || 1;
     updatePreview();
 }
 
+// Event listeners for DOM content loaded and form submission
 document.addEventListener("DOMContentLoaded", restoreOptions);
+window.addEventListener("load", updatePreview); // Add this line
 document.querySelector("form").addEventListener("submit", saveOptions);
 
+// Event listeners for preset buttons
 document.getElementById("preset1").addEventListener("click", applyPreset1);
 document.getElementById("preset2").addEventListener("click", applyPreset2);
 document.getElementById("preset3").addEventListener("click", applyPreset3);
 
+// Event listeners for input changes
 document.getElementById("background").addEventListener("input", updatePreview);
 document.getElementById("colour").addEventListener("input", updatePreview);
 document.getElementById("shadow-type").addEventListener("input", updatePreview);
 document.getElementById("shadow-colour").addEventListener("input", updatePreview);
 document.getElementById("font-family").addEventListener("input", updatePreview);
+document.getElementById("font-scale").addEventListener("input", updatePreview);
+document.getElementById("center-captions").addEventListener("change", updatePreview);
 
+/**
+ * Apply the first preset.
+ */
 function applyPreset1() {
-    document.querySelector("#background").setAttribute("value", "rgba(255, 255, 255, 0.25)");
-    document.querySelector("#colour").setAttribute("value", "rgba(0, 255, 0, 1)");
-    document.querySelector("#shadow-type").value = "drop-shadow";
-    document.querySelector("#shadow-colour").setAttribute("value", "rgba(34, 34, 34, 1)");
-    document.querySelector("#font-family").value = "Dancing Script, cursive";
+    document.querySelector("#background").setAttribute("value", "rgba(95, 0, 114, 0.8)");
+    document.querySelector("#colour").setAttribute("value", "rgba(255, 174, 0, 0.88)");
+    document.querySelector("#shadow-type").value = "depressed";
+    document.querySelector("#shadow-colour").setAttribute("value", "rgb(0, 0, 0)");
+    document.querySelector("#font-family").value = "Proportional Serif";
+    document.querySelector("#font-scale").value = 0.8;
     updatePreview();
 }
 
+/**
+ * Apply the second preset.
+ */
 function applyPreset2() {
     document.querySelector("#background").setAttribute("value", "rgba(255, 255, 255, 0)");
     document.querySelector("#colour").setAttribute("value", "rgba(243, 203, 80, 1)");
     document.querySelector("#shadow-type").value = "drop-shadow";
     document.querySelector("#shadow-colour").setAttribute("value", "rgba(0, 0, 0, 0.94)");
-    document.querySelector("#font-family").value = "Georgia, serif";
+    document.querySelector("#font-family").value = "\"Monotype Corsiva\", \"URW Chancery L\, \"Apple Chancery\", \"Dancing Script\", cursive";
+    document.querySelector("#font-scale").value = 1.3;
     updatePreview();
 }
 
+/**
+ * Apply the third preset.
+ */
 function applyPreset3() {
     document.querySelector("#background").setAttribute("value", "rgba(8, 8, 8, 0.75)");
     document.querySelector("#colour").setAttribute("value", "rgba(255, 255, 255, 1)");
     document.querySelector("#shadow-type").value = "none";
     document.querySelector("#shadow-colour").setAttribute("value", "rgba(8, 8, 8, 1)");
     document.querySelector("#font-family").value = "YouTube Noto, Roboto, Arial, Helvetica, Verdana, PT Sans Caption, sans-serif";
+    document.querySelector("#font-scale").value = 1;
     updatePreview();
 }
 
+// Event listeners for colour picker changes
 document.querySelectorAll('colour-picker').forEach(picker => {
     picker.addEventListener('change', (event) => {
         updatePreview();

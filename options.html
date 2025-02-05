@@ -267,7 +267,203 @@
                 padding: 10px;
             }
         }
+
+        /* Replace font preview styles with cross-browser solution */
+        #font-family {
+            font-size: 1.1em;
+            padding: 8px;
+            width: 100%;
+        }
+        
+        /* Firefox-specific styles */
+        @-moz-document url-prefix() {
+            #font-family option {
+                font-size: 1.2em !important;
+                padding: 8px !important;
+            }
+            
+            #font-family optgroup {
+                font-size: 1em !important;
+                font-weight: bold !important;
+            }
+            
+            /* Use background color to help distinguish options in Firefox */
+            #font-family option:hover,
+            #font-family option:focus,
+            #font-family option:active {
+                background-color: SelectedItem !important;
+                color: SelectedItemText !important;
+            }
+        }
+        
+        /* Use direct styling instead of CSS variables for Firefox compatibility */
+        #font-family option[value*='YouTube Noto'],
+        #font-family option[value*='Roboto'] { font-family: 'Roboto', sans-serif !important; }
+        #font-family option[value*='Courier'],
+        #font-family option[value*='Cutive'] { font-family: 'Cutive Mono', monospace !important; }
+        #font-family option[value*='Times'],
+        #font-family option[value*='PT Serif'] { font-family: 'PT Serif Caption', serif !important; }
+        #font-family option[value*='Comic'],
+        #font-family option[value*='Handlee'] { font-family: 'Handlee', cursive !important; }
+        #font-family option[value*='Dancing'] { font-family: 'Dancing Script', cursive !important; }
+        #font-family option[value*='Arial'] { font-variant: small-caps !important; }
+        #font-family option[value*='Permanent'] { font-family: 'Permanent Marker', cursive !important; }
+        #font-family option[value*='Fredoka'] { font-family: 'Fredoka One', cursive !important; }
+        #font-family option[value*='Press Start'] { font-family: 'Press Start 2P', monospace !important; }
+        #font-family option[value*='Special'] { font-family: 'Special Elite', monospace !important; }
+        #font-family option[value*='Bebas'] { font-family: 'Bebas Neue', sans-serif !important; }
+        #font-family option[value*='Righteous'] { font-family: 'Righteous', cursive !important; }
+        #font-family option[value*='Comfortaa'] { font-family: 'Comfortaa', sans-serif !important; }
+        #font-family option[value*='Indie'] { font-family: 'Indie Flower', cursive !important; }
+
+        /* Remove old CSS variable approach */
+        select#font-family option {
+            padding: 8px;
+            line-height: 1.4;
+        }
+
+        /* Font preview styles */
+        #font-family {
+            font-size: 1.1em;
+            padding: 8px;
+            width: 100%;
+        }
+
+        #font-family option {
+            padding: 8px 12px;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+
+        /* Direct font styling for options */
+        #font-family option[value*='YouTube Noto'] { font-family: 'Roboto', sans-serif; }
+        #font-family option[value*='Courier New'] { font-family: 'Cutive Mono', monospace; }
+        #font-family option[value*='Times New Roman'] { font-family: 'PT Serif Caption', serif; }
+        #font-family option[value*='PT Mono'] { font-family: 'PT Mono', monospace; }
+        #font-family option[value*='Comic Sans'] { font-family: 'Handlee', cursive; }
+        #font-family option[value*='Dancing Script'] { font-family: 'Dancing Script', cursive; }
+        #font-family option[value*='Arial'] { font-variant: small-caps; }
+        #font-family option[value*='Permanent Marker'] { font-family: 'Permanent Marker', cursive; }
+        #font-family option[value*='Fredoka One'] { font-family: 'Fredoka One', cursive; }
+        #font-family option[value*='Press Start 2P'] { font-family: 'Press Start 2P', monospace; }
+        #font-family option[value*='Special Elite'] { font-family: 'Special Elite', monospace; }
+        #font-family option[value*='Bebas Neue'] { font-family: 'Bebas Neue', sans-serif; }
+        #font-family option[value*='Righteous'] { font-family: 'Righteous', cursive; }
+        #font-family option[value*='Comfortaa'] { font-family: 'Comfortaa', sans-serif; }
+        #font-family option[value*='Indie Flower'] { font-family: 'Indie Flower', cursive; }
+
+        /* Improve optgroup styling */
+        #font-family optgroup {
+            font-size: 0.9em;
+            color: GrayText;
+            padding: 8px 4px;
+        }
+
+        /* Force font loading before showing select */
+        #font-family {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        #font-family.fonts-loaded {
+            opacity: 1;
+        }
+
+        /* Landscape mode adjustments */
+        @media (orientation: landscape) {
+            body {
+                flex-direction: row;
+                justify-content: center;
+                align-items: flex-start;
+            }
+
+            .video-preview {
+                width: 50vw;
+                height: 100vh;
+                margin: 0;
+            }
+
+            form {
+                width: 50vw;
+                height: 100vh;
+                margin: 0;
+                overflow-y: auto;
+                border-left: 1px solid ButtonBorder;
+                border-radius: 0;
+            }
+
+            .preset-buttons {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+                margin: 20px 0;
+            }
+
+            .preset-button {
+                width: 100%;
+                aspect-ratio: auto;
+                font-size: 1em;
+            }
+        }
+
+        /* Landscape mode adjustments */
+        @media (min-aspect-ratio: 1/1) {
+            body {
+                flex-direction: row;
+                justify-content: center;
+                align-items: flex-start;
+                height: 100vh;
+                overflow: hidden;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .video-preview {
+                position: relative;
+                width: min(55vw, calc(100vh * 16/9));
+                height: 100vh;
+                margin: 0;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            form {
+                position: relative;
+                width: 35vw;
+                height: 100vh;
+                margin: 0;
+                max-height: 100vh;
+                border-radius: 10px;
+                overflow-y: auto;
+                padding: 20px;
+            }
+
+            .preset-buttons {
+                position: sticky;
+                bottom: 0;
+                background: Canvas;
+                padding: 15px;
+                margin: 0;
+                border-top: 1px solid ButtonBorder;
+                max-width: 10%;
+            }
+
+            .preset-button {
+                padding: 10px;
+                height: auto;
+                aspect-ratio: auto;
+            }
+
+            /* Ensure containers don't overflow */
+            .video-preview, form {
+                min-height: 0;
+                max-height: calc(100vh - 40px);
+            }
+        }
     </style>
+    <!-- Add font preloading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=PT+Sans+Caption:wght@400;700&family=PT+Serif+Caption:wght@400&family=Cutive+Mono&family=PT+Mono&family=Roboto+Mono&family=Dancing+Script&family=Handlee&family=Permanent+Marker&family=Fredoka+One&family=Bebas+Neue&family=Righteous&family=Comfortaa:wght@400;700&family=Indie+Flower&family=Press+Start+2P&family=Special+Elite&display=swap" rel="stylesheet">
     <script type="module" src="colour-picker.js"></script>
     <script type="module" src="options.js" defer></script>
 </head>
@@ -318,15 +514,27 @@
         <div class="form-group">
             <label for="font-family">Font Family</label>
             <select id="font-family" name="font-family">
-                <option value='"YouTube Noto", Roboto, Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif'>Default Sans-Serif</option>
-                <option value='"Courier New", Courier, "Nimbus Mono L", "Cutive Mono", monospace'>Monospaced Serif</option>
-                <option value='"Times New Roman", Times, Georgia, Cambria, "PT Serif Caption", serif'>Proportional Serif</option>
-                <option value='"Deja Vu Sans Mono", "Lucida Console", Monaco, Consolas, "PT Mono", monospace'>Monospaced Sans-Serif</option>
-                <option value='"Comic Sans MS", Impact, Handlee, fantasy'>Comic Sans</option>
-                <option value='"Monotype Corsiva", "URW Chancery L", "Apple Chancery", "Dancing Script", cursive'>Cursive</option>
-                <option value='Arial, Helvetica, Verdana, "Marcellus SC", sans-serif' data-variant="small-caps">Small Capitals</option>
-                <option value="Wingdings, webdings, symbol">Wingdings</option>
-                <option value="Georgia, serif">Georgia</option>
+                <!-- YouTube Default Categories -->
+                <optgroup label="YouTube Defaults">
+                    <option value='"YouTube Noto", Roboto, Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif' style="font-family: Roboto, sans-serif">Default YouTube Font</option>
+                    <option value='"Courier New", Courier, "Cutive Mono", "Nimbus Mono L", monospace' style="font-family: 'Cutive Mono', monospace">Monospaced Serif</option>
+                    <option value='"Times New Roman", Times, Georgia, Cambria, "PT Serif Caption", serif' style="font-family: 'PT Serif Caption', serif">Proportional Serif</option>
+                    <option value='"PT Mono", "Roboto Mono", "Deja Vu Sans Mono", "Lucida Console", Monaco, Consolas, monospace' style="font-family: 'PT Mono', monospace">Monospaced Sans-Serif</option>
+                    <option value='"Comic Sans MS", Handlee, Impact, fantasy' style="font-family: 'Handlee', cursive">Comic Style</option>
+                    <option value='"Dancing Script", "Monotype Corsiva", "URW Chancery L", "Apple Chancery", cursive' style="font-family: 'Dancing Script', cursive">Cursive</option>
+                    <option value='Arial, Helvetica, Verdana, sans-serif' style="font-variant: small-caps">Small Capitals</option>
+                </optgroup>
+                <!-- Special Styles -->
+                <optgroup label="Special Styles">
+                    <option value='"Permanent Marker", Impact, sans-serif' style="font-family: 'Permanent Marker', cursive">Marker</option>
+                    <option value='"Fredoka One", cursive' style="font-family: 'Fredoka One', cursive">Rounded Bold</option>
+                    <option value='"Press Start 2P", monospace' style="font-family: 'Press Start 2P', monospace">8-Bit Gaming</option>
+                    <option value='"Special Elite", monospace' style="font-family: 'Special Elite', monospace">Typewriter</option>
+                    <option value='"Bebas Neue", sans-serif' style="font-family: 'Bebas Neue', sans-serif">Bebas Neue</option>
+                    <option value='"Righteous", cursive' style="font-family: 'Righteous', cursive">Righteous</option>
+                    <option value='"Comfortaa", sans-serif' style="font-family: 'Comfortaa', sans-serif">Comfortaa</option>
+                    <option value='"Indie Flower", cursive' style="font-family: 'Indie Flower', cursive">Indie Flower</option>
+                </optgroup>
             </select>
         </div>
 
@@ -345,9 +553,10 @@
 
     <!-- Preset buttons section -->
     <div class="preset-buttons">
-        <button class="preset-button" id="preset1">Clown</button>
-        <button class="preset-button" id="preset2">Parchment</button>
-        <button class="preset-button" id="preset3">Default</button>
+        <button class="preset-button" id="preset1">Gaming</button>
+        <button class="preset-button" id="preset2">Script</button>
+        <button class="preset-button" id="preset3">Marker</button>
+        <button class="preset-button" id="preset4">Default</button>
     </div>
 </body>
 </html>

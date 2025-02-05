@@ -57,7 +57,9 @@ function generateCSS(options) {
         shadow = `${shadowColor} 0px 0px 2px, ${shadowColor} 0px 0px 2px, ${shadowColor} 0px 0px 2px, ${shadowColor} 0px 0px 2px, ${shadowColor} 0px 0px 2px`;
     }
 
-    if (fontFamily.includes('Marcellus')) {
+    // Add small-caps style for both original YouTube option and Marcellus
+    if (fontFamily.includes('Marcellus') || 
+        (fontFamily.includes('Arial') && fontFamily.includes('Verdana'))) {
         extraStyle = 'font-variant: small-caps;';
     }
 
@@ -84,6 +86,7 @@ function generateCSS(options) {
             text-shadow: ${shadow} !important;
             font-family: ${fontFamily} !important;
             font-size: max(abs(calc((1vw - 2vh) * ${fontScale} )), abs(calc((3vw - 2vh) * ${fontScale} ))) !important;
+            --font-size: max(abs(calc((1vw - 2vh) * ${fontScale} )), abs(calc((3vw - 2vh) * ${fontScale} ))) !important;
             ${extraStyle}
         }
         ${centerStyle}
@@ -181,7 +184,14 @@ async function restoreOptions() {
 }
 
 // Event listeners for DOM content loaded and form submission
-document.addEventListener("DOMContentLoaded", restoreOptions);
+document.addEventListener("DOMContentLoaded", () => {
+    // Add fonts loaded check before showing select
+    const fontSelect = document.querySelector("#font-family");
+    document.fonts.ready.then(() => {
+        fontSelect.classList.add('fonts-loaded');
+    });
+    restoreOptions();
+});
 window.addEventListener("load", updatePreview); // Add this line
 document.querySelector("form").addEventListener("submit", saveOptions);
 
@@ -189,6 +199,7 @@ document.querySelector("form").addEventListener("submit", saveOptions);
 document.getElementById("preset1").addEventListener("click", applyPreset1);
 document.getElementById("preset2").addEventListener("click", applyPreset2);
 document.getElementById("preset3").addEventListener("click", applyPreset3);
+document.getElementById("preset4").addEventListener("click", applyPreset4); // Add this line
 
 // Event listeners for input changes
 document.getElementById("background").addEventListener("input", updatePreview);
@@ -203,12 +214,12 @@ document.getElementById("center-captions").addEventListener("change", updatePrev
  * Apply the first preset.
  */
 function applyPreset1() {
-    document.querySelector("#background").setAttribute("value", "rgba(95, 0, 114, 0.8)");
-    document.querySelector("#colour").setAttribute("value", "rgba(255, 174, 0, 0.88)");
-    document.querySelector("#shadow-type").value = "depressed";
-    document.querySelector("#shadow-colour").setAttribute("value", "rgb(0, 0, 0)");
-    document.querySelector("#font-family").value = "Proportional Serif";
-    document.querySelector("#font-scale").value = 0.8;
+    document.querySelector("#background").setAttribute("value", "rgba(95, 0, 114, 0.85)");
+    document.querySelector("#colour").setAttribute("value", "rgba(255, 174, 0, 0.95)");
+    document.querySelector("#shadow-type").value = "outline";
+    document.querySelector("#shadow-colour").setAttribute("value", "rgba(0, 0, 0, 1)");
+    document.querySelector("#font-family").value = '"Press Start 2P", monospace';
+    document.querySelector("#font-scale").value = 1.1;
     updatePreview();
 }
 
@@ -217,11 +228,11 @@ function applyPreset1() {
  */
 function applyPreset2() {
     document.querySelector("#background").setAttribute("value", "rgba(255, 255, 255, 0)");
-    document.querySelector("#colour").setAttribute("value", "rgba(243, 203, 80, 1)");
+    document.querySelector("#colour").setAttribute("value", "rgba(255, 255, 255, 1)");
     document.querySelector("#shadow-type").value = "drop-shadow";
-    document.querySelector("#shadow-colour").setAttribute("value", "rgba(0, 0, 0, 0.94)");
-    document.querySelector("#font-family").value = "\"Monotype Corsiva\", \"URW Chancery L\, \"Apple Chancery\", \"Dancing Script\", cursive";
-    document.querySelector("#font-scale").value = 1.3;
+    document.querySelector("#shadow-colour").setAttribute("value", "rgba(0, 0, 0, 0.9)");
+    document.querySelector("#font-family").value = '"Dancing Script", "Monotype Corsiva", "URW Chancery L", "Apple Chancery", cursive';
+    document.querySelector("#font-scale").value = 1.4;
     updatePreview();
 }
 
@@ -229,11 +240,24 @@ function applyPreset2() {
  * Apply the third preset.
  */
 function applyPreset3() {
+    document.querySelector("#background").setAttribute("value", "rgba(255, 255, 255, 0)");
+    document.querySelector("#colour").setAttribute("value", "rgba(243, 203, 80, 1)");
+    document.querySelector("#shadow-type").value = "raised";
+    document.querySelector("#shadow-colour").setAttribute("value", "rgba(0, 0, 0, 1)");
+    document.querySelector("#font-family").value = '"Permanent Marker", Impact, sans-serif';
+    document.querySelector("#font-scale").value = 1.2;
+    updatePreview();
+}
+
+/**
+ * Apply the fourth preset.
+ */
+function applyPreset4() {
     document.querySelector("#background").setAttribute("value", "rgba(8, 8, 8, 0.75)");
     document.querySelector("#colour").setAttribute("value", "rgba(255, 255, 255, 1)");
     document.querySelector("#shadow-type").value = "none";
     document.querySelector("#shadow-colour").setAttribute("value", "rgba(8, 8, 8, 1)");
-    document.querySelector("#font-family").value = "YouTube Noto, Roboto, Arial, Helvetica, Verdana, PT Sans Caption, sans-serif";
+    document.querySelector("#font-family").value = '"YouTube Noto", Roboto, Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif';
     document.querySelector("#font-scale").value = 1;
     updatePreview();
 }

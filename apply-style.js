@@ -4,6 +4,7 @@
  * @param {string} cssString - The CSS rules to apply
  */
 function applyCSS(cssString) {
+    injectFonts();
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
     styleSheet.innerText = cssString;
@@ -29,7 +30,12 @@ function applyCenterFix() {
     }
     .ytp-caption-window-container {
         width: 100vw !important;
-    }`;
+    }
+    .ytp-caption-segment {
+        left: calc((50%- (var(--font-size) * 50))) !important;
+        position: relative !important;
+    }
+    `;
 
     var styleSheetCenter = document.createElement("style");
     styleSheetCenter.type = "text/css";
@@ -48,6 +54,16 @@ function hexToRgba(hex, alpha) {
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/**
+ * Creates and injects font-face declarations for custom fonts from CDNs
+ */
+function injectFonts() {
+    const googleFontsLink = document.createElement('link');
+    googleFontsLink.rel = 'stylesheet';
+    googleFontsLink.href = 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=PT+Sans+Caption:wght@400;700&family=PT+Serif+Caption:wght@400&family=Cutive+Mono&family=PT+Mono&family=Roboto+Mono&family=Dancing+Script&family=Handlee&family=Permanent+Marker&family=Fredoka+One&family=Bebas+Neue&family=Righteous&family=Comfortaa:wght@400;700&family=Indie+Flower&family=Press+Start+2P&family=Special+Elite&display=swap';
+    document.head.appendChild(googleFontsLink);
 }
 
 // Listen for options changes from the background script

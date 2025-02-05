@@ -27,5 +27,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: youtube_mobile_-_better_captions-0.1
+          name: youtube_mobile_-_custom_captions-0.2
           path: web-ext-artifacts/*.zip

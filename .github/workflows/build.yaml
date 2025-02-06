@@ -22,10 +22,9 @@ jobs:
         run: web-ext lint
 
       - name: Build extension
-        run: web-ext build --overwrite-dest --artifacts-dir ./web-ext-artifacts
+        run: web-ext build --overwrite-dest --artifacts-dir ./web-ext-artifacts --filename YTM_CustomCaptions.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: youtube_mobile_-_custom_captions-0.2
-          path: web-ext-artifacts/*.zip
+          path: web-ext-artifacts/YTM_CustomCaptions.zip

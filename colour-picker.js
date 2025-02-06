@@ -28,7 +28,7 @@ template.innerHTML = `
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: min(90vw, 600px);
+            width: 98vw;
             max-height: 85vh;
             flex-direction: column;
             align-items: center;
@@ -149,14 +149,14 @@ template.innerHTML = `
 
         #colour-picker {
             position: relative;
-            width: 100%;
-            padding-bottom: min(100%, calc(100% - 180px)); /* Adjust based on other elements */
+            flex: 1;
+            height: 100%;
+            padding-bottom: 0;
             touch-action: none;
             border: 1px solid ButtonBorder;
             border-radius: 10px;
-            flex-shrink: 0;
-            margin-bottom: 10px;
             overflow: hidden;
+            margin: 0;
         }
 
         #colour-picker canvas {
@@ -170,7 +170,7 @@ template.innerHTML = `
 
         @media (orientation: landscape) {
             #colour-picker-widget {
-                width: min(90vw, 800px);
+                width: 90vw;
             }
 
             .widget-content {
@@ -234,8 +234,8 @@ template.innerHTML = `
 
         #colour-preview {
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 12.5%;
+            height: 12.5%;
             border: 2px solid #fff;
             border-radius: 50%;
             pointer-events: none;
@@ -243,15 +243,121 @@ template.innerHTML = `
             display: none;
             z-index: 2;
         }
+
+        /* Hue slider specific styles */
+        .hue-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 100%;
+            margin: 0;
+            border-radius: 15px;
+            flex-shrink: 0;
+            align-self: stretch;
+            background: linear-gradient(to bottom, 
+                hsl(0, 100%, 50%),
+                hsl(60, 100%, 50%),
+                hsl(120, 100%, 50%),
+                hsl(180, 100%, 50%),
+                hsl(240, 100%, 50%),
+                hsl(300, 100%, 50%),
+                hsl(360, 100%, 50%));
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border: 1px solid ButtonBorder;
+            cursor: ns-resize;
+            position: relative;
+        }
+
+        .hue-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: currentColor;
+            border: 2px solid #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            cursor: ns-resize;
+        }
+
+        .hue-slider::-moz-range-thumb {
+            width: 100%;
+            height: 6px;
+            background: currentColor;
+            border: 2px solid #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            cursor: ns-resize;
+        }
+
+        .hue-slider::-ms-thumb {
+            width: 100%;
+            height: 6px;
+            background: currentColor;
+            border: 2px solid #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            cursor: ns-resize;
+        }
+
+        .picker-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+            overflow: hidden;
+            aspect-ratio: 1/1;
+        }
+
+        @media (orientation: landscape) {
+            #colour-picker-widget {
+                width: 90vw;
+            }
+
+            .widget-content {
+                flex-direction: column;
+                align-items: center;
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+            .picker-container {
+                height: min(500px, calc(90vh - 250px));
+                max-width: 500px;
+                margin: 0 auto;
+                padding: 0;
+            }
+
+            #colour-picker {
+                width: 100%;
+                max-width: 500px;
+                padding-bottom: min(500px, calc(90vh - 250px));
+            }
+        }
+
+        @media (max-height: 700px) {
+            .picker-container {
+                height: calc(60vh - 180px);
+            }
+        }
+
+        @media (max-height: 600px) {
+            .picker-container {
+                height: calc(50vh - 180px);
+            }
+        }
     </style>
     <div class="colour-picker-container">
         <button type="button" class="colour-preview-button"></button>
         <div id="colour-picker-widget" value="">
             <div class="widget-content">
-                <div id="colour-picker">
-                    <canvas></canvas>
-                    <div id="selection-circle"></div>
-                    <div id="colour-preview"></div>
+                <div class="picker-container">
+                    <div id="colour-picker">
+                        <canvas></canvas>
+                        <div id="selection-circle"></div>
+                        <div id="colour-preview"></div>
+                    </div>
+                    <input type="range" class="hue-slider" id="hue-slider" min="0" max="1" step="0.001" value="0">
                 </div>
                 <div class="slider-container">
                     <input type="range" class="alpha-slider" id="alpha-slider" min="0" max="1" step="0.01" value="1">
@@ -295,9 +401,13 @@ class ColourPicker extends HTMLElement {
         this.selectionCircle = shadowRoot.querySelector('#selection-circle');
         this.colourPreview = shadowRoot.querySelector('#colour-preview');
         this.alphaSlider = shadowRoot.querySelector('#alpha-slider');
+        this.hueSlider = shadowRoot.querySelector('#hue-slider');
         
         this.alpha = 1;
         this.lastRGB = { r: 255, g: 0, b: 0 };
+        this.hue = 0;
+        this.saturation = 1;
+        this.value = 1;
 
         this.boundPickColour = this.pickColour.bind(this);
         this.setupEventListeners();
@@ -326,6 +436,16 @@ class ColourPicker extends HTMLElement {
         this.colourGInput.addEventListener('blur', () => this.validateInput(this.colourGInput, 0, 255));
         this.colourBInput.addEventListener('blur', () => this.validateInput(this.colourBInput, 0, 255));
         this.colourAInput.addEventListener('blur', () => this.validateInput(this.colourAInput, 0, 1));
+
+        // Add canvas resize observer
+        this.resizeObserver = new ResizeObserver(() => {
+            this.canvas.width = this.canvas.clientWidth;
+            this.canvas.height = this.canvas.clientHeight;
+            this.drawSaturationValue();
+        });
+        this.resizeObserver.observe(this.canvas);
+
+        this.updateHueSliderColor(); // Initialize the hue slider color
     }
 
     /**
@@ -375,6 +495,62 @@ class ColourPicker extends HTMLElement {
                 this.widget.style.display = 'none';
             }
         });
+
+        // Update hue slider event handling
+        this.hueSlider.addEventListener('input', (e) => {
+            const value = parseFloat(this.hueSlider.value);
+            this.hue = Math.round(360 * (1 - value));
+            this.updateHueSliderColor();
+            this.drawSaturationValue();
+            this.updateColorFromHSV();
+        });
+
+        // Add mouse and touch handling for hue slider
+        const updateHueFromPosition = (clientY) => {
+            const rect = this.hueSlider.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+            this.hueSlider.value = percent;
+            this.hue = Math.round(360 * (1 - percent));
+            this.updateHueSliderColor();
+            this.drawSaturationValue();
+            this.updateColorFromHSV();
+        };
+
+        this.hueSlider.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            updateHueFromPosition(e.clientY);
+            
+            const onMouseMove = (e) => {
+                e.preventDefault();
+                updateHueFromPosition(e.clientY);
+            };
+            
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+            
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        this.hueSlider.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            updateHueFromPosition(e.touches[0].clientY);
+            
+            const onTouchMove = (e) => {
+                e.preventDefault();
+                updateHueFromPosition(e.touches[0].clientY);
+            };
+            
+            const onTouchEnd = () => {
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+            };
+            
+            document.addEventListener('touchmove', onTouchMove);
+            document.addEventListener('touchend', onTouchEnd);
+        });
     }
 
     /**
@@ -421,21 +597,38 @@ class ColourPicker extends HTMLElement {
             const rgba = currentColour.match(/rgba\((\d+), (\d+), (\d+), (\d+(\.\d+)?)\)/);
             if (rgba) {
                 this.alpha = parseFloat(rgba[4]);
-                this.alphaSlider.value = this.alpha;
                 this.lastRGB = { r: parseInt(rgba[1]), g: parseInt(rgba[2]), b: parseInt(rgba[3]) };
-                this.colourRInput.value = this.lastRGB.r;
-                this.colourGInput.value = this.lastRGB.g;
-                this.colourBInput.value = this.lastRGB.b;
-                this.colourAInput.value = this.alpha;
-                this.updateAlphaSliderGradient();
-                this.updateColour(currentColour);
                 
-                requestAnimationFrame(() => {
-                    const rect = this.canvas.getBoundingClientRect();
-                    const pos = this.approximateColorPosition(this.lastRGB);
-                    this.selectionCircle.style.left = `${pos.x * rect.width}px`;
-                    this.selectionCircle.style.top = `${pos.y * rect.height}px`;
-                });
+                // Convert RGB to HSV
+                const r = this.lastRGB.r / 255;
+                const g = this.lastRGB.g / 255;
+                const b = this.lastRGB.b / 255;
+                
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                const delta = max - min;
+                
+                this.value = max;
+                this.saturation = max === 0 ? 0 : delta / max;
+                
+                if (delta === 0) this.hue = 0;
+                else if (max === r) this.hue = 60 * (((g - b) / delta) % 6);
+                else if (max === g) this.hue = 60 * ((b - r) / delta + 2);
+                else this.hue = 60 * ((r - g) / delta + 4);
+                
+                if (this.hue < 0) this.hue += 360;
+                
+                this.hueSlider.value = (1 - (this.hue / 360)).toString();
+                this.drawSaturationValue();
+                
+                // Update UI
+                const rect = this.canvas.getBoundingClientRect();
+                this.selectionCircle.style.left = `${this.saturation * rect.width}px`;
+                this.selectionCircle.style.top = `${(1 - this.value) * rect.height}px`;
+                
+                this.updateColour(currentColour);
+                this.updateAlphaSliderGradient();
+                this.updateHueSliderColor();
             }
         }
     }
@@ -497,35 +690,33 @@ class ColourPicker extends HTMLElement {
      * Draw the colour picker gradient canvas
      */
     drawColourPicker() {
-        // Create horizontal rainbow gradient
-        const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, 0);
-        
-        // Pure primary and secondary colors
-        gradient.addColorStop(0/6, 'rgb(255, 0, 0)');      // Red
-        gradient.addColorStop(1/6, 'rgb(255, 255, 0)');    // Yellow
-        gradient.addColorStop(2/6, 'rgb(0, 255, 0)');      // Green
-        gradient.addColorStop(3/6, 'rgb(0, 255, 255)');    // Cyan
-        gradient.addColorStop(4/6, 'rgb(0, 0, 255)');      // Blue
-        gradient.addColorStop(5/6, 'rgb(255, 0, 255)');    // Magenta
-        gradient.addColorStop(6/6, 'rgb(255, 0, 0)');      // Red (again to complete the circle)
-        
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawSaturationValue();
+    }
 
-        // White to transparent gradient (top to bottom)
-        const whiteGradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        whiteGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        whiteGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
-        whiteGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        this.ctx.fillStyle = whiteGradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    /**
+     * Draw the saturation and value gradient canvas
+     */
+    drawSaturationValue() {
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+        this.ctx.clearRect(0, 0, width, height);
 
-        // Transparent to black gradient (top to bottom)
-        const blackGradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        blackGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        blackGradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
-        this.ctx.fillStyle = blackGradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        // Convert hue to RGB for base color
+        const hueRgb = this.hsvToRgb(this.hue, 1, 1);
+        
+        // Create saturation gradient (white to color)
+        const satGradient = this.ctx.createLinearGradient(0, 0, width, 0);
+        satGradient.addColorStop(0, 'white');
+        satGradient.addColorStop(1, `rgb(${hueRgb.r}, ${hueRgb.g}, ${hueRgb.b})`);
+        this.ctx.fillStyle = satGradient;
+        this.ctx.fillRect(0, 0, width, height);
+
+        // Create value gradient (transparent to black)
+        const valGradient = this.ctx.createLinearGradient(0, 0, 0, height);
+        valGradient.addColorStop(0, 'rgba(0,0,0,0)');
+        valGradient.addColorStop(1, 'black');
+        this.ctx.fillStyle = valGradient;
+        this.ctx.fillRect(0, 0, width, height);
     }
 
     /**
@@ -540,26 +731,13 @@ class ColourPicker extends HTMLElement {
         x = Math.max(0, Math.min(x, rect.width));
         y = Math.max(0, Math.min(y, rect.height));
 
-        const imageData = this.ctx.getImageData(x * (this.canvas.width / rect.width), y * (this.canvas.height / rect.height), 1, 1).data;
-        this.lastRGB = { r: imageData[0], g: imageData[1], b: imageData[2] };
-        const rgbaColour = `rgba(${this.lastRGB.r}, ${this.lastRGB.g}, ${this.lastRGB.b}, ${this.alpha})`;
-        
-        this.colourRInput.value = this.lastRGB.r;
-        this.colourGInput.value = this.lastRGB.g;
-        this.colourBInput.value = this.lastRGB.b;
-        this.colourAInput.value = this.alpha;
+        this.saturation = x / rect.width;
+        this.value = 1 - (y / rect.height);
+
+        this.updateColorFromHSV();
         
         this.selectionCircle.style.left = `${x}px`;
         this.selectionCircle.style.top = `${y}px`;
-        
-        this.colourPreview.style.left = `${x}px`;
-        this.colourPreview.style.top = `${y - 50}px`;
-        this.colourPreview.style.transform = 'translate(-50%, -50%)';
-        this.colourPreview.style.backgroundColor = rgbaColour;
-        this.colourPreview.style.display = 'block';
-        
-        this.updateColour(rgbaColour);
-        this.updateAlphaSliderGradient();
     }
 
     /**
@@ -634,6 +812,62 @@ class ColourPicker extends HTMLElement {
         const pos = this.approximateColorPosition(this.lastRGB);
         this.selectionCircle.style.left = `${pos.x * rect.width}px`;
         this.selectionCircle.style.top = `${pos.y * rect.height}px`;
+    }
+
+    /**
+     * Update color from HSV values
+     */
+    updateColorFromHSV() {
+        const rgb = this.hsvToRgb(this.hue, this.saturation, this.value);
+        this.lastRGB = rgb;
+        const rgbaColour = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${this.alpha})`;
+        
+        this.colourRInput.value = rgb.r;
+        this.colourGInput.value = rgb.g;
+        this.colourBInput.value = rgb.b;
+        this.colourAInput.value = this.alpha;
+        
+        this.updateColour(rgbaColour);
+        this.updateAlphaSliderGradient();
+    }
+
+    /**
+     * Convert HSV to RGB
+     * @param {number} h - Hue
+     * @param {number} s - Saturation
+     * @param {number} v - Value
+     * @returns {Object} RGB color object with r, g, b properties
+     */
+    hsvToRgb(h, s, v) {
+        const c = v * s;
+        const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+        const m = v - c;
+        
+        let r = 0, g = 0, b = 0;
+        if (h >= 0 && h < 60) { r = c; g = x; b = 0; }
+        else if (h >= 60 && h < 120) { r = x; g = c; b = 0; }
+        else if (h >= 120 && h < 180) { r = 0; g = c; b = x; }
+        else if (h >= 180 && h < 240) { r = 0; g = x; b = c; }
+        else if (h >= 240 && h < 300) { r = x; g = 0; b = c; }
+        else if (h >= 300 && h < 360) { r = c; g = 0; b = x; }
+        
+        return {
+            r: Math.round((r + m) * 255),
+            g: Math.round((g + m) * 255),
+            b: Math.round((b + m) * 255)
+        };
+    }
+
+    /**
+     * Update the hue slider thumb color
+     */
+    updateHueSliderColor() {
+        const hueColor = this.hsvToRgb(this.hue, 1, 1);
+        this.hueSlider.style.color = `rgb(${hueColor.r}, ${hueColor.g}, ${hueColor.b})`;
+        // Ensure the slider value matches the hue
+        if (this.hueSlider.value !== this.hue.toString()) {
+            this.hueSlider.value = this.hue;
+        }
     }
 }
 

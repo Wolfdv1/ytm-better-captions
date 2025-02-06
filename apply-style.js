@@ -23,17 +23,12 @@ function applyCenterFix() {
     
     const centerFix =`
     .caption-window {
-        width: 95vw !important;
-        left: 2.5vw !important;
-        margin-left: 0vw !important;
-        border-left-width: 0vw !important;
+        width: auto !important;
+        left: auto !important;
     }
     .ytp-caption-window-container {
-        width: 100vw !important;
-    }
-    .ytp-caption-segment {
-        left: calc((50%- (var(--font-size) * 50))) !important;
-        position: relative !important;
+        display: flex !important;
+        justify-content: center !important;
     }
     `;
 

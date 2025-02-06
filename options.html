@@ -18,7 +18,6 @@
             background-color: Canvas;
             color: CanvasText;
             text-align: center;
-            max-width: 100vw;
             overflow-x: hidden;
             margin: 0;
             padding: 0;
@@ -28,8 +27,8 @@
         }
 
         form {
-            width: 100%;
-            max-width: 800px; 
+            width: 95vw;
+            max-width: 95vw !important;
             margin: 20px auto;
             background-color: Canvas;
             padding: 15px;
@@ -88,7 +87,7 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            max-width: 800px;
+            max-width: 95vw;
             margin: 10px auto;
         }
 
@@ -211,90 +210,7 @@
             }
         }
 
-        @media (min-width: 400px) {
-            .form-group {
-                flex-direction: row;
-                align-items: center;
-                gap: 5px;
-            }
 
-            label {
-                margin-bottom: 0;
-                flex: 1;
-            }
-
-            body {
-                padding: 0;
-            }
-
-            .video-preview {
-                margin: 0;
-            }
-
-            .form-group.center-captions {
-                flex-direction: row;
-                align-items: center;
-                padding: 15px;
-            }
-
-            .form-group input[type="checkbox"] {
-                width: 32px;
-                height: 32px;
-            }
-
-            .preset-buttons {
-                flex-direction: row;
-                gap: 10px;
-            }
-
-            .preset-button {
-                width: 30%;
-                aspect-ratio: 1;
-                font-size: 0.8em;
-            }
-        }
-
-        @media (min-height: 600px) {
-            .video-preview {
-                margin: 0 auto 20px;
-            }
-
-            .form-group {
-                margin: 10px 0;
-            }
-
-            form {
-                padding: 10px;
-            }
-        }
-
-        /* Replace font preview styles with cross-browser solution */
-        #font-family {
-            font-size: 1.1em;
-            padding: 8px;
-            width: 100%;
-        }
-        
-        /* Firefox-specific styles */
-        @-moz-document url-prefix() {
-            #font-family option {
-                font-size: 1.2em !important;
-                padding: 8px !important;
-            }
-            
-            #font-family optgroup {
-                font-size: 1em !important;
-                font-weight: bold !important;
-            }
-            
-            /* Use background color to help distinguish options in Firefox */
-            #font-family option:hover,
-            #font-family option:focus,
-            #font-family option:active {
-                background-color: SelectedItem !important;
-                color: SelectedItemText !important;
-            }
-        }
         
         /* Use direct styling instead of CSS variables for Firefox compatibility */
         #font-family option[value*='YouTube Noto'],
@@ -383,8 +299,9 @@
             }
 
             form {
+                top: 0vh;
+                left: 0vw;
                 width: 50vw;
-                height: 100vh;
                 margin: 0;
                 overflow-y: auto;
                 border-left: 1px solid ButtonBorder;
@@ -405,12 +322,12 @@
             }
         }
 
-        /* Landscape mode adjustments */
+        /* Update landscape mode adjustments */
         @media (min-aspect-ratio: 1/1) {
             body {
                 flex-direction: row;
-                justify-content: center;
-                align-items: flex-start;
+                justify-content: flex-start;
+                align-items: stretch;
                 height: 100vh;
                 overflow: hidden;
                 gap: 20px;
@@ -418,45 +335,74 @@
             }
 
             .video-preview {
-                position: relative;
-                width: min(55vw, calc(100vh * 16/9));
-                height: 100vh;
+                flex: 1;
+                max-width: 60%;
+                min-height: calc(100vh - 40px);
                 margin: 0;
                 border-radius: 10px;
                 overflow: hidden;
+                background: #000;
+                display: flex;
+                align-items: center;
             }
 
             form {
-                position: relative;
-                width: 35vw;
-                height: 100vh;
+                flex: 0 0 35%;
+                width: 35%;
+                max-width: 450px;
+                height: calc(100vh - 40px);
                 margin: 0;
-                max-height: 100vh;
-                border-radius: 10px;
                 overflow-y: auto;
+                border-radius: 10px;
                 padding: 20px;
+                padding-bottom: 80px; /* Make room for preset buttons */
+                box-sizing: border-box;
+                position: relative;
             }
 
             .preset-buttons {
-                position: sticky;
-                bottom: 0;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: calc(35% - 40px);
+                max-width: 410px;
                 background: Canvas;
-                padding: 15px;
+                padding: 10px;
                 margin: 0;
                 border-top: 1px solid ButtonBorder;
-                max-width: 10%;
+                border-radius: 0 0 10px 10px;
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+                box-sizing: border-box;
+                justify-content: space-between;
+                z-index: 1;
             }
 
             .preset-button {
-                padding: 10px;
-                height: auto;
-                aspect-ratio: auto;
+                width: 23%;
+                height: 40px;
+                margin: 0;
+                padding: 5px;
+                font-size: 0.9em;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
-            /* Ensure containers don't overflow */
-            .video-preview, form {
-                min-height: 0;
-                max-height: calc(100vh - 40px);
+            /* Fix form width in landscape */
+            #settings-form {
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: none !important;
+            }
+
+            /* Fix caption container in landscape */
+            .ytp-caption-window-container {
+                bottom: 10%;
+                width: 80% !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
             }
         }
     </style>
@@ -486,7 +432,7 @@
     <!-- Settings form section -->
     <form id="settings-form">
         <div class="form-group">
-            <label for="background">Background Color</label>
+            <label for="background">Background Colour</label>
             <colour-picker id="background" value="rgba(8, 8, 8, 0.75)"></colour-picker>
         </div>
 
@@ -507,7 +453,7 @@
         </div>
 
         <div class="form-group">
-            <label for="shadow-colour">Shadow Color</label>
+            <label for="shadow-colour">Shadow Colour</label>
             <colour-picker id="shadow-colour" value="rgba(8, 8, 8, 1)"></colour-picker>
         </div>
 

@@ -12,7 +12,7 @@ template.innerHTML = `
         }
         button.colour-preview-button {
             width: 20em;
-            height: 3em;
+            height: 50px;
             border: 2px solid ButtonBorder;
             border-radius: 8px;
             cursor: pointer;
@@ -93,17 +93,6 @@ template.innerHTML = `
             background: currentColor;
         }
 
-        @media (max-width: 768px) {
-            .alpha-slider {
-                height: 40px;
-            }
-            .alpha-slider::-webkit-slider-thumb,
-            .alpha-slider::-moz-range-thumb {
-                width: 50px;
-                height: 50px;
-            }
-        }
-
         /* Selected colour inputs */
         #selected-colour {
             display: flex;
@@ -168,37 +157,6 @@ template.innerHTML = `
             border-radius: inherit;
         }
 
-        @media (orientation: landscape) {
-            #colour-picker-widget {
-                width: 90vw;
-            }
-
-            .widget-content {
-                flex-direction: column;
-                align-items: center;
-                max-width: 600px;
-                margin: 0 auto;
-            }
-
-            #colour-picker {
-                width: 100%;
-                max-width: 500px;
-                padding-bottom: min(500px, calc(90vh - 250px));
-            }
-        }
-
-        @media (max-height: 700px) {
-            #colour-picker {
-                padding-bottom: min(100%, calc(60vh - 180px));
-            }
-        }
-
-        @media (max-height: 600px) {
-            #colour-picker {
-                padding-bottom: min(100%, calc(50vh - 180px));
-            }
-        }
-
         #selection-circle {
             position: absolute;
             width: 20px;
@@ -232,14 +190,17 @@ template.innerHTML = `
 
         #colour-preview {
             position: absolute;
-            width: 12.5%;
-            height: 12.5%;
+            width: 5vh;
+            height: 5vh;
             border: 2px solid #fff;
             border-radius: 50%;
             pointer-events: none;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-            display: none;
             z-index: 2;
+        }
+
+        .hidden {
+            display: none;
         }
 
         .hue-picker {
@@ -281,43 +242,6 @@ template.innerHTML = `
             aspect-ratio: 1/1;
         }
 
-        @media (orientation: landscape) {
-            #colour-picker-widget {
-                width: 90vw;
-            }
-
-            .widget-content {
-                flex-direction: column;
-                align-items: center;
-                max-width: 600px;
-                margin: 0 auto;
-            }
-
-            .picker-container {
-                height: min(500px, calc(90vh - 250px));
-                max-width: 500px;
-                margin: 0 auto;
-                padding: 0;
-            }
-
-            #colour-picker {
-                width: 100%;
-                max-width: 500px;
-                padding-bottom: min(500px, calc(90vh - 250px));
-            }
-        }
-
-        @media (max-height: 700px) {
-            .picker-container {
-                height: calc(60vh - 180px);
-            }
-        }
-
-        @media (max-height: 600px) {
-            .picker-container {
-                height: calc(50vh - 180px);
-            }
-        }
     </style>
     <div class="colour-picker-container">
         <button type="button" class="colour-preview-button"></button>
@@ -763,9 +687,13 @@ class ColourPicker extends HTMLElement {
         this.saturation = x / rect.width;
         this.value = 1 - (y / rect.height);
 
-        // Update the selection circle position
+        // Update the selection crosshairs position
         this.selectionCircle.style.left = `${x}px`;
         this.selectionCircle.style.top = `${y}px`;
+
+        // Update the preview circle position
+        this.colourPreview.style.left = `abs(calc((${x}px - 2.5vh) - 10vh))`;
+        this.colourPreview.style.top = `abs(calc(${y}px - 10vh))`;
 
         // Update the color
         this.updateColorFromHSV();
@@ -776,6 +704,7 @@ class ColourPicker extends HTMLElement {
      * @param {Event} event - Mouse or touch event
      */
     startPicking(event) {
+        this.colourPreview.classList.toggle('hidden');
         this.pickColour(event);
     }
 
@@ -783,7 +712,7 @@ class ColourPicker extends HTMLElement {
      * Stop the colour picking process
      */
     stopPicking() {
-        this.colourPreview.style.display = 'none';
+        this.colourPreview.classList.toggle('hidden');
     }
 
     /**
@@ -860,6 +789,7 @@ class ColourPicker extends HTMLElement {
         
         this.updateColour(rgbaColour);
         this.updateAlphaSliderGradient();
+        this.colourPreview.style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${this.alpha})`;
     }
 
     /**

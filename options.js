@@ -68,15 +68,16 @@ function generateCSS(options) {
     let centerStyle = '';
     if (options.centerCaptions) {
         centerStyle = `
-        .caption-window {
-            width: 95% !important;
-            left: 2.5% !important;
-            margin-left: 0% !important;
-            border-left-width: 0% !important;
-        }
-        .ytp-caption-window-container {
-            width: 100% !important;
-        }`;
+            .caption-window {
+                width: auto !important;
+                margin-left: auto !important;
+                left: auto !important;
+            }
+            .ytp-caption-window-container {
+                display: flex !important;
+                justify-content: center !important;
+                width: 100% !important;
+            }`;
     }
 
     return `

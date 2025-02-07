@@ -1,4 +1,5 @@
-### A lightweight self contained addon that allows for settings to be set for closed captions/subtitles on m.youtube.com, as Youtube only presents caption/accessibility options on the desktop site.  
+### A lightweight self contained addon that allows for settings to be set for closed captions/subtitles on m.youtube.com, as YouTube only presents caption/accessibility options on the desktop site.  
+Designed as an Add-on for Firefox for Android, however supports desktop Firefox also.  
 
 ---
 
@@ -17,6 +18,8 @@
 - Shadow Colour
 
 - Experimental force centered mode
+
+- Settings Sync to Mozilla Account
 
 ##### TODO:
 

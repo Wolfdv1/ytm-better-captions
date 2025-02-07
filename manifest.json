@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "YouTube Mobile - Custom Captions",
     "description": "Modify the style of captions on m.youtube.com, like can be done on the desktop site but with more options!",
-    "version": "1",
+    "version": "1.1",
     "homepage_url": "https://github.com/wolfdv1/ytm-better-captions",
     "permissions": ["activeTab", "tabs", "storage"],
     "optional_permissions": ["*://*/"],
@@ -15,7 +15,7 @@
     "options_ui": { "page": "options.html", "open_in_tab": true },
     "icons": { "48": "ytm_better_caps_icon.svg", "96": "ytm_better_caps_icon.svg", "256": "ytm_better_caps_icon.svg", "512": "ytm_better_caps_icon.svg" },
     "background": { "scripts": ["background.js"] },
-    "content_scripts": [{"matches": ["https://m.youtube.com/*","https://youtube.com/*"],"js": ["apply-style.js"]}],
+    "content_scripts": [{"matches": ["https://*.youtube.com/*"],"js": ["apply-style.js"]}],
     "action": { "default_icon": { "16": "ytm_better_caps_icon.svg", "32": "ytm_better_caps_icon.svg" }},
     "browser_specific_settings": {
         "gecko": {

@@ -11,8 +11,8 @@ template.innerHTML = `
             display: inline-block;
         }
         button.colour-preview-button {
-            width: 40px;
-            height: 40px;
+            width: 20em;
+            height: 3em;
             border: 2px solid ButtonBorder;
             border-radius: 8px;
             cursor: pointer;
@@ -221,7 +221,6 @@ template.innerHTML = `
             height: 2px;
             left: 0;
             top: 50%;
-            transform: translateY(-50%);
         }
 
         #selection-circle::after {
@@ -229,7 +228,6 @@ template.innerHTML = `
             height: 20px;
             top: 0;
             left: 50%;
-            transform: translateX(-50%);
         }
 
         #colour-preview {
@@ -244,59 +242,33 @@ template.innerHTML = `
             z-index: 2;
         }
 
-        /* Hue slider specific styles */
-        .hue-slider {
-            -webkit-appearance: none;
-            appearance: none;
+        .hue-picker {
             width: 30px;
             height: 100%;
-            margin: 0;
-            border-radius: 15px;
             flex-shrink: 0;
             align-self: stretch;
-            background: linear-gradient(to bottom, 
-                hsl(0, 100%, 50%),
-                hsl(60, 100%, 50%),
-                hsl(120, 100%, 50%),
-                hsl(180, 100%, 50%),
-                hsl(240, 100%, 50%),
-                hsl(300, 100%, 50%),
-                hsl(360, 100%, 50%));
-            outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
             border: 1px solid ButtonBorder;
-            cursor: ns-resize;
             position: relative;
+            overflow: hidden;
+            cursor: default;  /* Changed from ns-resize */
+            user-select: none;
         }
 
-        .hue-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
+        .hue-picker canvas {
             width: 100%;
-            height: 6px;
-            background: currentColor;
-            border: 2px solid #fff;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-            cursor: ns-resize;
+            height: 100%;
+            cursor: default;  /* Added to ensure cursor stays default */
         }
 
-        .hue-slider::-moz-range-thumb {
-            width: 100%;
-            height: 6px;
-            background: currentColor;
-            border: 2px solid #fff;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-            cursor: ns-resize;
-        }
-
-        .hue-slider::-ms-thumb {
-            width: 100%;
-            height: 6px;
-            background: currentColor;
-            border: 2px solid #fff;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-            cursor: ns-resize;
+        .hue-line {
+            position: absolute;
+            width: calc(100% + 6px);
+            height: 2px;
+            background: white;
+            left: -3px;
+            pointer-events: none;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+            transform: translateY(-50%);
         }
 
         .picker-container {
@@ -357,7 +329,10 @@ template.innerHTML = `
                         <div id="selection-circle"></div>
                         <div id="colour-preview"></div>
                     </div>
-                    <input type="range" class="hue-slider" id="hue-slider" min="0" max="1" step="0.001" value="0">
+                    <div class="hue-picker">
+                        <canvas></canvas>
+                        <div class="hue-line"></div>
+                    </div>
                 </div>
                 <div class="slider-container">
                     <input type="range" class="alpha-slider" id="alpha-slider" min="0" max="1" step="0.01" value="1">
@@ -401,7 +376,12 @@ class ColourPicker extends HTMLElement {
         this.selectionCircle = shadowRoot.querySelector('#selection-circle');
         this.colourPreview = shadowRoot.querySelector('#colour-preview');
         this.alphaSlider = shadowRoot.querySelector('#alpha-slider');
-        this.hueSlider = shadowRoot.querySelector('#hue-slider');
+        
+        // Replace hue-related properties
+        this.huePicker = shadowRoot.querySelector('.hue-picker');
+        this.hueCanvas = this.huePicker.querySelector('canvas');
+        this.hueCtx = this.hueCanvas.getContext('2d');
+        this.hueLine = shadowRoot.querySelector('.hue-line');
         
         this.alpha = 1;
         this.lastRGB = { r: 255, g: 0, b: 0 };
@@ -445,7 +425,23 @@ class ColourPicker extends HTMLElement {
         });
         this.resizeObserver.observe(this.canvas);
 
-        this.updateHueSliderColor(); // Initialize the hue slider color
+        // Add hue canvas resize observer
+        const hueResizeObserver = new ResizeObserver(() => {
+            this.hueCanvas.width = this.hueCanvas.clientWidth;
+            this.hueCanvas.height = this.hueCanvas.clientHeight;
+            this.drawHueGradient();
+        });
+        hueResizeObserver.observe(this.hueCanvas);
+
+        // Initialize canvas sizes immediately
+        this.canvas.width = this.canvas.clientWidth;
+        this.canvas.height = this.canvas.clientHeight;
+        this.hueCanvas.width = this.hueCanvas.clientWidth;
+        this.hueCanvas.height = this.hueCanvas.clientHeight;
+
+        // Draw gradients immediately
+        this.drawHueGradient();
+        this.drawSaturationValue();
     }
 
     /**
@@ -465,22 +461,48 @@ class ColourPicker extends HTMLElement {
         });
         
         this.canvas.addEventListener('mousedown', (e) => {
-            this.startPicking(e);
-            document.addEventListener('mousemove', this.boundPickColour);
-            document.addEventListener('mouseup', () => {
-                document.removeEventListener('mousemove', this.boundPickColour);
-                this.stopPicking();
-            }, { once: true });
+            e.preventDefault();
+            this.isPicking = true;
+            this.pickColour(e);
+            
+            const onMouseMove = (e) => {
+                if (this.isPicking) {
+                    e.preventDefault();
+                    this.pickColour(e);
+                }
+            };
+            
+            const onMouseUp = () => {
+                this.isPicking = false;
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+            
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
         });
 
         this.canvas.addEventListener('touchstart', (e) => {
-            this.startPicking(e);
-            document.addEventListener('touchmove', this.boundPickColour);
-            document.addEventListener('touchend', () => {
-                document.removeEventListener('touchmove', this.boundPickColour);
-                this.stopPicking();
-            }, { once: true });
-        });
+            e.preventDefault();
+            this.isPicking = true;
+            this.pickColour(e);
+            
+            const onTouchMove = (e) => {
+                if (this.isPicking) {
+                    e.preventDefault();
+                    this.pickColour(e);
+                }
+            };
+            
+            const onTouchEnd = () => {
+                this.isPicking = false;
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+            };
+            
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd);
+        }, { passive: false });
 
         this.alphaSlider.addEventListener('input', () => this.updateAlpha());
 
@@ -496,27 +518,17 @@ class ColourPicker extends HTMLElement {
             }
         });
 
-        // Update hue slider event handling
-        this.hueSlider.addEventListener('input', (e) => {
-            const value = parseFloat(this.hueSlider.value);
-            this.hue = Math.round(360 * (1 - value));
-            this.updateHueSliderColor();
-            this.drawSaturationValue();
-            this.updateColorFromHSV();
-        });
-
-        // Add mouse and touch handling for hue slider
+        // Replace hue slider events with canvas events
         const updateHueFromPosition = (clientY) => {
-            const rect = this.hueSlider.getBoundingClientRect();
+            const rect = this.hueCanvas.getBoundingClientRect();
             const percent = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-            this.hueSlider.value = percent;
             this.hue = Math.round(360 * (1 - percent));
-            this.updateHueSliderColor();
+            this.updateHueLine();
             this.drawSaturationValue();
             this.updateColorFromHSV();
         };
 
-        this.hueSlider.addEventListener('mousedown', (e) => {
+        this.hueCanvas.addEventListener('mousedown', (e) => {
             e.preventDefault();
             updateHueFromPosition(e.clientY);
             
@@ -534,7 +546,7 @@ class ColourPicker extends HTMLElement {
             document.addEventListener('mouseup', onMouseUp);
         });
 
-        this.hueSlider.addEventListener('touchstart', (e) => {
+        this.hueCanvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             updateHueFromPosition(e.touches[0].clientY);
             
@@ -548,9 +560,9 @@ class ColourPicker extends HTMLElement {
                 document.removeEventListener('touchend', onTouchEnd);
             };
             
-            document.addEventListener('touchmove', onTouchMove);
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
             document.addEventListener('touchend', onTouchEnd);
-        });
+        }, { passive: false });
     }
 
     /**
@@ -618,7 +630,6 @@ class ColourPicker extends HTMLElement {
                 
                 if (this.hue < 0) this.hue += 360;
                 
-                this.hueSlider.value = (1 - (this.hue / 360)).toString();
                 this.drawSaturationValue();
                 
                 // Update UI
@@ -628,7 +639,10 @@ class ColourPicker extends HTMLElement {
                 
                 this.updateColour(currentColour);
                 this.updateAlphaSliderGradient();
-                this.updateHueSliderColor();
+                
+                // Update hue indicator instead of slider
+                this.drawHueGradient();
+                this.updateHueLine();
             }
         }
     }
@@ -697,8 +711,13 @@ class ColourPicker extends HTMLElement {
      * Draw the saturation and value gradient canvas
      */
     drawSaturationValue() {
-        const width = this.canvas.width;
-        const height = this.canvas.height;
+        const width = this.canvas.width || this.canvas.clientWidth;
+        const height = this.canvas.height || this.canvas.clientHeight;
+        
+        // Ensure canvas dimensions are set
+        if (this.canvas.width !== width) this.canvas.width = width;
+        if (this.canvas.height !== height) this.canvas.height = height;
+        
         this.ctx.clearRect(0, 0, width, height);
 
         // Convert hue to RGB for base color
@@ -724,20 +743,32 @@ class ColourPicker extends HTMLElement {
      * @param {Event} event - Mouse or touch event
      */
     pickColour(event) {
+        event.preventDefault(); // Prevent default behavior
         const rect = this.canvas.getBoundingClientRect();
-        let x = event.touches ? event.touches[0].clientX - rect.left : event.clientX - rect.left;
-        let y = event.touches ? event.touches[0].clientY - rect.top : event.clientY - rect.top;
+        let x, y;
+        
+        if (event.touches) {
+            x = event.touches[0].clientX - rect.left;
+            y = event.touches[0].clientY - rect.top;
+        } else {
+            x = event.clientX - rect.left;
+            y = event.clientY - rect.top;
+        }
 
+        // Constrain values to canvas bounds
         x = Math.max(0, Math.min(x, rect.width));
         y = Math.max(0, Math.min(y, rect.height));
 
+        // Update saturation and value
         this.saturation = x / rect.width;
         this.value = 1 - (y / rect.height);
 
-        this.updateColorFromHSV();
-        
+        // Update the selection circle position
         this.selectionCircle.style.left = `${x}px`;
         this.selectionCircle.style.top = `${y}px`;
+
+        // Update the color
+        this.updateColorFromHSV();
     }
 
     /**
@@ -859,15 +890,34 @@ class ColourPicker extends HTMLElement {
     }
 
     /**
-     * Update the hue slider thumb color
+     * Draw the hue gradient on the canvas
      */
-    updateHueSliderColor() {
-        const hueColor = this.hsvToRgb(this.hue, 1, 1);
-        this.hueSlider.style.color = `rgb(${hueColor.r}, ${hueColor.g}, ${hueColor.b})`;
-        // Ensure the slider value matches the hue
-        if (this.hueSlider.value !== this.hue.toString()) {
-            this.hueSlider.value = this.hue;
+    drawHueGradient() {
+        const width = this.hueCanvas.width || this.hueCanvas.clientWidth;
+        const height = this.hueCanvas.height || this.hueCanvas.clientHeight;
+        
+        // Ensure canvas dimensions are set
+        if (this.hueCanvas.width !== width) this.hueCanvas.width = width;
+        if (this.hueCanvas.height !== height) this.hueCanvas.height = height;
+
+        const gradient = this.hueCtx.createLinearGradient(0, 0, 0, height);
+        
+        // Create smoother gradient with more color stops
+        for (let i = 0; i <= 360; i += 1) {
+            const rgb = this.hsvToRgb(i, 1, 1);
+            gradient.addColorStop(1 - (i / 360), `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`);
         }
+        
+        this.hueCtx.fillStyle = gradient;
+        this.hueCtx.fillRect(0, 0, width, height);
+    }
+
+    /**
+     * Update the hue line position
+     */
+    updateHueLine() {
+        const percent = 1 - (this.hue / 360);
+        this.hueLine.style.top = `${percent * 100}%`;
     }
 }
 

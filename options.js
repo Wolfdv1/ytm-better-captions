@@ -69,13 +69,13 @@ function generateCSS(options) {
     if (options.centerCaptions) {
         centerStyle = `
         .caption-window {
-            width: 95vw !important;
-            left: 2.5vw !important;
-            margin-left: 0vw !important;
-            border-left-width: 0vw !important;
+            width: 95% !important;
+            left: 2.5% !important;
+            margin-left: 0% !important;
+            border-left-width: 0% !important;
         }
         .ytp-caption-window-container {
-            width: 100vw !important;
+            width: 100% !important;
         }`;
     }
 

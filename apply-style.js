@@ -9,33 +9,6 @@ function applyCSS(cssString) {
     styleSheet.type = "text/css";
     styleSheet.innerText = cssString;
     document.head.appendChild(styleSheet);
-    browser.runtime.sendMessage({ message: "centerCaptions" }).then((centered) => {
-        if (centered) {
-            applyCenterFix();
-        }
-    });
-}
-
-/**
- * Applies CSS fixes for centering captions by adding additional styles.
- */
-function applyCenterFix() {
-    
-    const centerFix =`
-    .caption-window {
-        width: auto !important;
-        left: auto !important;
-    }
-    .ytp-caption-window-container {
-        display: flex !important;
-        justify-content: center !important;
-    }
-    `;
-
-    var styleSheetCenter = document.createElement("style");
-    styleSheetCenter.type = "text/css";
-    styleSheetCenter.innerText = centerFix;
-    document.head.appendChild(styleSheetCenter);
 }
 
 /**
@@ -57,7 +30,7 @@ function hexToRgba(hex, alpha) {
 function injectFonts() {
     const googleFontsLink = document.createElement('link');
     googleFontsLink.rel = 'stylesheet';
-    googleFontsLink.href = 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=PT+Sans+Caption:wght@400;700&family=PT+Serif+Caption:wght@400&family=Cutive+Mono&family=PT+Mono&family=Roboto+Mono&family=Dancing+Script&family=Handlee&family=Permanent+Marker&family=Fredoka+One&family=Bebas+Neue&family=Righteous&family=Comfortaa:wght@400;700&family=Indie+Flower&family=Press+Start+2P&family=Special+Elite&display=swap';
+    googleFontsLink.href = 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=PT+Sans+Caption:wght@400;700&family=PT+Serif+Caption:wght@400&family=Cutive+Mono&family=PT+Mono&family=Roboto+Mono&family=Dancing+Script&family=Handlee&family=Permanent+Marker&family=Fredoka+One&family=Bebas+Neue&family=Righteous&family=Comfortaa:wght@400;700&family=Indie+Flower&family=Press+Start+2P&family=Special+Elite&family=Yarndings+20&display=swap';
     document.head.appendChild(googleFontsLink);
 }
 

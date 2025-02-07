@@ -1,8 +1,5 @@
-name: Build extension
-on:
-  push:
-    branches:
-      - main
+name: Package extension
+on: push
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,9 +19,9 @@ jobs:
         run: web-ext lint
 
       - name: Build extension
-        run: web-ext build --overwrite-dest --artifacts-dir ./web-ext-artifacts --filename YTM_CustomCaptions.zip
+        run: web-ext build --overwrite-dest --artifacts-dir ./web-ext-artifacts --filename YTM_CustomCaptions${GITHUB_REF_NAME##*/}.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: web-ext-artifacts/*
+          path: web-ext-artifacts/ytm_customcaptions${GITHUB_REF_NAME##*/}.zip

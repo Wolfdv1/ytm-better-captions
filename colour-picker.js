@@ -242,12 +242,10 @@ template.innerHTML = `
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             display: none;
             z-index: 2;
+            display: none;
         }
 
-        /* Hue slider specific styles */
-        .hue-slider {
-            -webkit-appearance: none;
-            appearance: none;
+        .hue-picker {
             width: 30px;
             height: 100%;
             margin: 0;
@@ -465,22 +463,51 @@ class ColourPicker extends HTMLElement {
         });
         
         this.canvas.addEventListener('mousedown', (e) => {
-            this.startPicking(e);
-            document.addEventListener('mousemove', this.boundPickColour);
-            document.addEventListener('mouseup', () => {
-                document.removeEventListener('mousemove', this.boundPickColour);
-                this.stopPicking();
-            }, { once: true });
+            e.preventDefault();
+            this.isPicking = true;
+            this.colourPreview.style.display = 'inherit';
+            this.pickColour(e);
+            
+            const onMouseMove = (e) => {
+                if (this.isPicking) {
+                    e.preventDefault();
+                    this.pickColour(e);
+                }
+            };
+            
+            const onMouseUp = () => {
+                this.isPicking = false;
+                this.colourPreview.style.display = 'none';
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+            
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
         });
 
         this.canvas.addEventListener('touchstart', (e) => {
-            this.startPicking(e);
-            document.addEventListener('touchmove', this.boundPickColour);
-            document.addEventListener('touchend', () => {
-                document.removeEventListener('touchmove', this.boundPickColour);
-                this.stopPicking();
-            }, { once: true });
-        });
+            e.preventDefault();
+            this.isPicking = true;
+            this.pickColour(e);
+            
+            const onTouchMove = (e) => {
+                if (this.isPicking) {
+                    e.preventDefault();
+                    this.pickColour(e);
+                }
+            };
+            
+            const onTouchEnd = () => {
+                this.isPicking = false;
+                this.colourPreview.style.display = 'none';
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+            };
+            
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd);
+        }, { passive: false });
 
         this.alphaSlider.addEventListener('input', () => this.updateAlpha());
 
@@ -738,21 +765,6 @@ class ColourPicker extends HTMLElement {
         
         this.selectionCircle.style.left = `${x}px`;
         this.selectionCircle.style.top = `${y}px`;
-    }
-
-    /**
-     * Start the colour picking process
-     * @param {Event} event - Mouse or touch event
-     */
-    startPicking(event) {
-        this.pickColour(event);
-    }
-
-    /**
-     * Stop the colour picking process
-     */
-    stopPicking() {
-        this.colourPreview.style.display = 'none';
     }
 
     /**

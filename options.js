@@ -48,19 +48,18 @@ function generateCSS(options) {
     if (options.shadowType === "none") {
         shadow = "none";
     } else if (options.shadowType === "raised") {
-        shadow = `${shadowColor} 1px 1px 0px, ${shadowColor} 2px 2px 0px, ${shadowColor} 3px 3px 0px`;
+        shadow = `${shadowColor} 0.08vw 0.08vw 0px, ${shadowColor} 0.16vw 0.16vw 0px, ${shadowColor} 0.24vw 0.24vw 0px`;
     } else if (options.shadowType === "drop-shadow") {
-        shadow = `${shadowColor} 2px 2px 3px, ${shadowColor} 2px 2px 4px, ${shadowColor} 2px 2px 5px`;
+        shadow = `${shadowColor} 0.16vw 0.16vw 0.24vw, ${shadowColor} 0.16vw 0.16vw 0.32vw, ${shadowColor} 0.16vw 0.16vw 0.4vw`;
     } else if (options.shadowType === "depressed") {
-        shadow = `${shadowColor} 1px 1px 0px, ${shadowColor} -1px -1px 0px`;
+        shadow = `${shadowColor} 0.08vw 0.08vw 0px, ${shadowColor} -0.08vw -0.08vw 0px`;
     } else if (options.shadowType === "outline") {
-        shadow = `${shadowColor} 0px 0px 2px, ${shadowColor} 0px 0px 2px, ${shadowColor} 0px 0px 2px, ${shadowColor} 0px 0px 2px, ${shadowColor} 0px 0px 2px`;
+        shadow = `${shadowColor} 0px 0px 0.16vw, ${shadowColor} 0px 0px 0.16vw, ${shadowColor} 0px 0px 0.16vw, ${shadowColor} 0px 0px 0.16vw, ${shadowColor} 0px 0px 0.16vw`;
     }
 
     // Add small-caps style for both original YouTube option and Marcellus
-    if (fontFamily.includes('Marcellus') || 
-        (fontFamily.includes('Arial') && fontFamily.includes('Verdana'))) {
-        extraStyle = 'font-variant: small-caps;';
+    if (fontFamily === 'Arial, Helvetica, Verdana, sans-serif') {
+        extraStyle = 'font-variant: small-caps; !important';
     }
 
     const fontScale = options.fontScale || 1;
@@ -68,15 +67,17 @@ function generateCSS(options) {
     let centerStyle = '';
     if (options.centerCaptions) {
         centerStyle = `
-        .caption-window {
-            width: 95vw !important;
-            left: 2.5vw !important;
-            margin-left: 0vw !important;
-            border-left-width: 0vw !important;
-        }
-        .ytp-caption-window-container {
-            width: 100vw !important;
-        }`;
+            .caption-window {
+                width: auto !important;
+                margin-left: auto !important;
+                left: auto !important;
+                background-color: rgba(8,8,8,0) !important;
+            }
+            .ytp-caption-window-container {
+                display: flex !important;
+                justify-content: center !important;
+                width: 100% !important;
+            }`;
     }
 
     return `
@@ -135,7 +136,6 @@ function updatePreview() {
             line.style.width = "100%";
         });
     } else {
-        container.style.textAlign = "left";
         captionWindow.style.position = "absolute";
         captionWindow.style.left = "";
         captionWindow.style.width = "";
@@ -155,6 +155,9 @@ function updatePreview() {
         segment.style.fill = colour;
         segment.style.textShadow = shadow;
         segment.style.fontFamily = fontFamily;
+        if (fontFamily === 'Arial, Helvetica, Verdana, sans-serif') {
+            segment.style.fontVariant = "small-caps";
+        }
         segment.style.fontSize = `max(abs(calc((1vw - 2vh) * ${fontScale})), abs(calc((3vw - 2vh) * ${fontScale})))`;
     });
 }

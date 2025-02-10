@@ -37,13 +37,14 @@
             max-height: calc(100vh - 300px);
             overflow-y: auto;
             box-sizing: border-box;
+            font-size: 1.5em;
         }
 
         .form-group {
             display: flex;
             align-items: center;
-            margin: 10px 0;
-            gap: 15px;
+            margin: 25px 0;
+            gap: 15em;
         }
 
         label {
@@ -72,6 +73,7 @@
             font: inherit;
             width: 100%;
             margin-top: 15px;
+            font-size: 1.5em;
         }
 
         button:hover {
@@ -96,7 +98,7 @@
             aspect-ratio: 1;
             margin: 0;
             display: block;
-            font-size: 0.9em;
+            font-size: 1.5em;
         }
 
         .video-preview {
@@ -242,7 +244,6 @@
         #font-family {
             font-size: 1.1em;
             padding: 8px;
-            width: 100%;
         }
 
         #font-family option {
@@ -284,12 +285,24 @@
             opacity: 1;
         }
 
+        colour-picker {
+            right: 5vw;
+            position: absolute;
+        }
+
+        select {
+            right: 5vw;
+            position: absolute;
+        }
+
         /* Landscape mode adjustments */
         @media (orientation: landscape) {
             body {
                 flex-direction: row;
                 justify-content: center;
                 align-items: flex-start;
+                height: 100vh;
+                overflow: hidden;
             }
 
             .video-preview {
@@ -303,23 +316,15 @@
                 left: 0vw;
                 width: 50vw;
                 margin: 0;
-                overflow-y: auto;
+                height: 100vh; /* Full height */
+                max-height: none; /* Remove max-height constraint */
+                overflow-y: visible; /* Remove scrollbar */
                 border-left: 1px solid ButtonBorder;
                 border-radius: 0;
+                padding-bottom: 100px; /* Space for preset buttons */
             }
 
-            .preset-buttons {
-                flex-direction: column;
-                gap: 10px;
-                width: 100%;
-                margin: 20px 0;
-            }
-
-            .preset-button {
-                width: 100%;
-                aspect-ratio: auto;
-                font-size: 1em;
-            }
+            /* ...existing landscape code... */
         }
 
         /* Update landscape mode adjustments */
@@ -332,11 +337,12 @@
                 overflow: hidden;
                 gap: 20px;
                 padding: 20px;
+                padding-bottom: 0;
             }
 
             .video-preview {
                 flex: 1;
-                max-width: 60%;
+                max-width: 30%;
                 min-height: calc(100vh - 40px);
                 margin: 0;
                 border-radius: 10px;
@@ -347,47 +353,44 @@
             }
 
             form {
-                flex: 0 0 35%;
+                flex: 0 0 70%;
                 width: 35%;
                 max-width: 450px;
                 height: calc(100vh - 40px);
                 margin: 0;
-                overflow-y: auto;
+                overflow-y: auto; /* Enable scrolling */
                 border-radius: 10px;
                 padding: 20px;
-                padding-bottom: 80px; /* Make room for preset buttons */
+                padding-bottom: 80px; /* Reduced padding */
+                margin-bottom: 60px; /* Add margin to prevent overlap */
                 box-sizing: border-box;
                 position: relative;
+                max-height: none; /* Remove max-height constraint */
+                border: none;
+
             }
 
             .preset-buttons {
                 position: fixed;
-                bottom: 20px;
-                right: 20px;
-                width: calc(35% - 40px);
+                bottom: 0;
+                right: 20px; /* Match body padding */
+                width: calc(35% - 40px); /* Account for body padding */
                 max-width: 410px;
                 background: Canvas;
                 padding: 10px;
                 margin: 0;
                 border-top: 1px solid ButtonBorder;
-                border-radius: 0 0 10px 10px;
                 display: flex;
-                flex-direction: row;
                 gap: 10px;
                 box-sizing: border-box;
-                justify-content: space-between;
-                z-index: 1;
+                z-index: 100;
             }
 
             .preset-button {
-                width: 23%;
+                width: calc(25% - 8px); /* Account for gap */
+                aspect-ratio: auto;
                 height: 40px;
-                margin: 0;
-                padding: 5px;
-                font-size: 0.9em;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                font-size: 1rem;
             }
 
             /* Fix form width in landscape */
@@ -404,12 +407,39 @@
                 left: 50% !important;
                 transform: translateX(-50%) !important;
             }
+
+            .form-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                margin: 25px 0;
+            }
+
+            .form-group label {
+                min-width: 100%;
+                margin-bottom: 4px;
+            }
+
+            .form-group.checkbox {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px;
+                background: rgba(128, 128, 128, 0.1);
+                border-radius: 8px;
+                margin: 20px 0;
+
+            }
+
+            #font-scale {
+                width: 100%;
+            }
         }
     </style>
     <!-- Add font preloading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=PT+Sans+Caption:wght@400;700&family=PT+Serif+Caption:wght@400&family=Cutive+Mono&family=PT+Mono&family=Roboto+Mono&family=Dancing+Script&family=Handlee&family=Permanent+Marker&family=Fredoka+One&family=Bebas+Neue&family=Righteous&family=Comfortaa:wght@400;700&family=Indie+Flower&family=Press+Start+2P&family=Special+Elite&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=PT+Sans+Caption:wght@400;700&family=PT+Serif+Caption:wght@400&family=Cutive+Mono&family=PT+Mono&family=Roboto+Mono&family=Dancing+Script&family=Handlee&family=Permanent+Marker&family=Fredoka+One&family=Bebas+Neue&family=Righteous&family=Comfortaa:wght@400;700&family=Indie+Flower&family=Press+Start+2P&family=Special+Elite&family=Yarndings+20&display=swap" rel="stylesheet">
     <script type="module" src="colour-picker.js"></script>
     <script type="module" src="options.js" defer></script>
 </head>
@@ -432,12 +462,12 @@
     <!-- Settings form section -->
     <form id="settings-form">
         <div class="form-group">
-            <label for="background">Background Colour</label>
+            <label for="background">Background</label>
             <colour-picker id="background" value="rgba(8, 8, 8, 0.75)"></colour-picker>
         </div>
 
         <div class="form-group">
-            <label for="colour">Font Color</label>
+            <label for="colour">Font Colour</label>
             <colour-picker id="colour" value="rgba(255, 255, 255, 1)"></colour-picker>
         </div>
 
@@ -480,6 +510,7 @@
                     <option value='"Righteous", cursive' style="font-family: 'Righteous', cursive">Righteous</option>
                     <option value='"Comfortaa", sans-serif' style="font-family: 'Comfortaa', sans-serif">Comfortaa</option>
                     <option value='"Indie Flower", cursive' style="font-family: 'Indie Flower', cursive">Indie Flower</option>
+                    <option value='"Yarndings 20", sans-serif' style="font-family: 'Yarndings 20', sans-serif">Yarndings 20</option>
                 </optgroup>
             </select>
         </div>

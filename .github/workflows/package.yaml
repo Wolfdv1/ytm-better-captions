@@ -1,0 +1,35 @@
+name: Package extension
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      EXTENSION_FILENAME_BUILD: ytm_customcaptions_${{ github.ref_name }}.zip
+      EXTENSION_FILENAME_ARTIFACT: ytm_customcaptions_${{ github.ref_name }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install -g web-ext
+
+      - name: Lint extension
+        run: web-ext lint
+
+      - name: Build extension
+        run: web-ext build --artifacts-dir ./web-ext-artifacts --filename ${{ env.EXTENSION_FILENAME_BUILD }}
+
+
+      - name: Unzip built extension
+        run: unzip ./web-ext-artifacts/${{ env.EXTENSION_FILENAME_BUILD }} -d ./web-ext-artifacts/unzipped
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./web-ext-artifacts/unzipped
+          name: ${{ env.EXTENSION_FILENAME_ARTIFACT }}
